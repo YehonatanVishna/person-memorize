@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import confetti from 'canvas-confetti';
 import { Trophy, Clock, Flame, RotateCcw, AlertTriangle, ArrowRight, CheckCircle2 } from 'lucide-react';
 import type { GameSummary } from '../types/person';
+import { triggerCompletionConfetti } from '../utils/confetti';
 
 interface GameSummaryModalProps {
   summary: GameSummary;
@@ -18,15 +18,7 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
 }) => {
   useEffect(() => {
     if (summary.scorePercentage >= 80) {
-      try {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
-      } catch {
-        // ignore in case canvas is unavailable
-      }
+      triggerCompletionConfetti();
     }
   }, [summary.scorePercentage]);
 

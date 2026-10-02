@@ -8,6 +8,7 @@ import {
   type RoundEvaluation,
   type RoundStatus,
 } from '../utils/gameEngine';
+import { triggerCorrectAnswerConfetti } from '../utils/confetti';
 
 export interface UseGameEngineReturn {
   status: RoundStatus;
@@ -100,6 +101,7 @@ export function useGameEngine(): UseGameEngineReturn {
       setStatus('feedback');
 
       if (evaluation.isCorrect) {
+        triggerCorrectAnswerConfetti();
         setScore((prev) => prev + 1);
         setStreak((prev) => {
           const nextStreak = prev + 1;
