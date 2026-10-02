@@ -12,6 +12,7 @@ describe('Hebrew and Text Normalization', () => {
   it('normalizes excess spaces and punctuation', () => {
     expect(normalizeText('  שרה   כהן  ')).toBe('שרה כהן');
     expect(normalizeText('יוסי-חיים')).toBe('יוסי חיים');
+    expect(normalizeText('דוד בן־גוריון')).toBe('דוד בן גוריון');
     expect(normalizeText("ג'ורג'")).toBe("ג'ורג'");
   });
 

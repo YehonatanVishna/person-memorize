@@ -157,6 +157,7 @@ export function App() {
 
             {mode === 'photo-to-name' && (
               <PhotoToNameGame
+                key={currentPerson.id}
                 person={currentPerson}
                 status={status}
                 lastEvaluation={lastEvaluation}
@@ -167,6 +168,7 @@ export function App() {
 
             {mode === 'name-to-id' && (
               <NameToIdGame
+                key={currentPerson.id}
                 person={currentPerson}
                 options={currentOptions}
                 status={status}
@@ -178,6 +180,7 @@ export function App() {
 
             {mode === 'name-to-photo' && (
               <NameToPhotoGame
+                key={currentPerson.id}
                 person={currentPerson}
                 options={currentOptions}
                 status={status}

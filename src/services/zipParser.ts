@@ -79,17 +79,31 @@ export async function parseZipArchive(file: File | Blob): Promise<ParseZipResult
 
   // Look for known manifest names
   for (const name of MANIFEST_NAMES) {
-    const entry = zip.file(name) || zip.file(new RegExp(`(^|/)${name}$`, 'i'))[0];
-    if (entry) {
-      manifestEntry = entry;
-      manifestFileName = entry.name;
+    const direct = zip.file(name);
+    if (direct && !direct.name.startsWith('__MACOSX')) {
+      manifestEntry = direct;
+      manifestFileName = direct.name;
+      break;
+    }
+    const matches = zip
+      .file(new RegExp(`(^|/)${name}$`, 'i'))
+      .filter((f) => !f.name.startsWith('__MACOSX') && !f.name.includes('/__MACOSX') && !f.name.split('/').pop()?.startsWith('._'));
+    if (matches.length > 0) {
+      manifestEntry = matches[0];
+      manifestFileName = matches[0].name;
       break;
     }
   }
 
   // If not found, look for any .json or .csv in the archive root
   if (!manifestEntry) {
-    const allFiles = Object.keys(zip.files).filter((k) => !zip.files[k].dir);
+    const allFiles = Object.keys(zip.files).filter(
+      (k) =>
+        !zip.files[k].dir &&
+        !k.startsWith('__MACOSX') &&
+        !k.includes('/__MACOSX') &&
+        !k.split('/').pop()?.startsWith('._')
+    );
     const jsonOrCsv = allFiles.find((f) => f.toLowerCase().endsWith('.json') || f.toLowerCase().endsWith('.csv'));
     if (jsonOrCsv) {
       manifestEntry = zip.file(jsonOrCsv);
@@ -141,7 +155,13 @@ export async function parseZipArchive(file: File | Blob): Promise<ParseZipResult
 
   // 3. Map images and build StoredPerson records
   const people: StoredPerson[] = [];
-  const allZipFiles = Object.keys(zip.files).filter((k) => !zip.files[k].dir);
+  const allZipFiles = Object.keys(zip.files).filter(
+    (k) =>
+      !zip.files[k].dir &&
+      !k.startsWith('__MACOSX') &&
+      !k.includes('/__MACOSX') &&
+      !k.split('/').pop()?.startsWith('._')
+  );
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];

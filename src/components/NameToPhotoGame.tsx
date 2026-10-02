@@ -29,6 +29,7 @@ export const NameToPhotoGame: React.FC<NameToPhotoGameProps> = ({
           onSubmit(options[num - 1].id);
         }
       } else if (status === 'feedback' && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
         onNext();
       }
     };

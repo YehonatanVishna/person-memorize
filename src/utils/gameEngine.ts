@@ -74,7 +74,8 @@ export function evaluateAnswer(
   mode: GameMode,
   target: Person,
   rawAnswer: string,
-  allowTypo: boolean = true
+  allowTypo: boolean = true,
+  options?: Person[]
 ): RoundEvaluation {
   const answer = rawAnswer.trim();
 
@@ -99,13 +100,13 @@ export function evaluateAnswer(
   }
 
   if (mode === 'name-to-photo') {
-    // rawAnswer is the selected person's ID
     const isCorrect = answer === target.id;
+    const chosenPerson = options?.find((p) => p.id === answer);
     return {
       isCorrect,
       isTypo: false,
-      userAnswer: answer,
-      correctAnswer: target.id,
+      userAnswer: chosenPerson ? chosenPerson.name : answer,
+      correctAnswer: target.name,
     };
   }
 

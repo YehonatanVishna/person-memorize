@@ -94,7 +94,7 @@ export function useGameEngine(): UseGameEngineReturn {
       if (status !== 'pending' || queue.length === 0) return;
 
       const target = queue[currentIndex];
-      const evaluation = evaluateAnswer(mode, target, answer, settings.allowTypo);
+      const evaluation = evaluateAnswer(mode, target, answer, settings.allowTypo, currentOptions);
 
       setLastEvaluation(evaluation);
       setStatus('feedback');
@@ -115,7 +115,7 @@ export function useGameEngine(): UseGameEngineReturn {
         setMistakes((prev) => [...prev, mistake]);
       }
     },
-    [status, queue, currentIndex, mode, settings.allowTypo]
+    [status, queue, currentIndex, mode, settings.allowTypo, currentOptions]
   );
 
   const nextQuestion = useCallback(() => {

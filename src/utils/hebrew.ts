@@ -23,7 +23,7 @@ export function normalizeText(text: string): string {
     .replace(HEBREW_DIACRITICS_REGEX, '')
     .replace(QUOTES_REGEX, "'")
     .replace(GERSHAYIM_REGEX, '"')
-    .replace(/[-–—_]/g, ' ')
+    .replace(/[-–—_\u05BE]/g, ' ')
     .toLowerCase()
     .trim()
     .replace(/\s+/g, ' ');

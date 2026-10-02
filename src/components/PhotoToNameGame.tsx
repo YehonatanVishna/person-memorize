@@ -23,7 +23,6 @@ export const PhotoToNameGame: React.FC<PhotoToNameGameProps> = ({
 
   // Focus input on mount and whenever new person appears
   useEffect(() => {
-    setInputVal('');
     if (inputRef.current) {
       inputRef.current.focus();
     }
