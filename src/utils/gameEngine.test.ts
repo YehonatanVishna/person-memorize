@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Person } from '../types/person';
+import type { Person } from '../types/person';
 import {
   buildQuestionQueue,
   evaluateAnswer,

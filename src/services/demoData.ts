@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import { StoredPerson } from '../types/person';
+import type { StoredPerson } from '../types/person';
 
 /**
  * Creates an SVG avatar Blob with initials and styling.

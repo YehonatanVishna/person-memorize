@@ -1,4 +1,4 @@
-import { Person, StoredPerson } from '../types/person';
+import type { Person, StoredPerson } from '../types/person';
 
 const DB_NAME = 'person_memorize_db';
 const DB_VERSION = 1;

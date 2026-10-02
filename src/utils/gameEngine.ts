@@ -1,4 +1,4 @@
-import { GameMode, MistakeRecord, Person } from '../types/person';
+import type { GameMode, MistakeRecord, Person } from '../types/person';
 import { checkNameMatch } from './hebrew';
 
 export type RoundStatus = 'idle' | 'pending' | 'feedback' | 'completed';

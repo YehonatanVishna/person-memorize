@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react';
-import { GameMode, GameSettings, GameSummary, MistakeRecord, Person } from '../types/person';
+import type { GameMode, GameSettings, GameSummary, MistakeRecord, Person } from '../types/person';
 import {
   buildQuestionQueue,
   createMistakeRecord,
   evaluateAnswer,
   generateQuestionOptions,
-  RoundEvaluation,
-  RoundStatus,
+  type RoundEvaluation,
+  type RoundStatus,
 } from '../utils/gameEngine';
 
 export interface UseGameEngineReturn {

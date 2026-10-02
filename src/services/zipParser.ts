@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 import Papa from 'papaparse';
-import { ManifestItem, StoredPerson } from '../types/person';
+import type { ManifestItem, StoredPerson } from '../types/person';
 
 export interface ParseZipResult {
   people: StoredPerson[];
