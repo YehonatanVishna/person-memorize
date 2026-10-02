@@ -1,6 +1,7 @@
 import React from 'react';
-import { Users, Upload, BookOpen, Download, Sparkles } from 'lucide-react';
+import { Users, Upload, BookOpen, Download, Sparkles, Smartphone } from 'lucide-react';
 import { generateSampleZipBlob } from '../services/demoData';
+import { usePwaInstall } from '../hooks/usePwaInstall';
 
 interface HeaderProps {
   peopleCount: number;
@@ -17,6 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   onLoadDemo,
   onGoHome,
 }) => {
+  const { canInstall, promptInstall } = usePwaInstall();
   const handleDownloadSample = async () => {
     try {
       const blob = await generateSampleZipBlob();
@@ -54,6 +56,19 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          {/* Install PWA Button (when installable) */}
+          {canInstall && (
+            <button
+              onClick={promptInstall}
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 min-h-[44px] rounded-xl bg-violet-600/30 hover:bg-violet-600/50 active:scale-[0.96] border border-violet-500/50 text-xs font-semibold text-violet-200 transition-all shadow-md shadow-violet-600/20"
+              title="התקן כאפליקציה למכשיר שלך"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-violet-300" />
+              <span className="hidden sm:inline">התקן אפליקציה</span>
+              <span className="sm:hidden">התקן</span>
+            </button>
+          )}
+
           {/* People Count Badge */}
           <button
             onClick={onOpenDirectory}

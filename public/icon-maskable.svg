@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGradM" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="50%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="badgeGradM" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+  </defs>
+
+  <!-- Full bleed Background for Maskable Icon -->
+  <rect width="512" height="512" fill="url(#bgGradM)" />
+
+  <!-- Inner safe-zone graphic scaled to 0.78 -->
+  <g transform="translate(56, 56) scale(0.78)">
+    <g fill="#ffffff">
+      <!-- Left Person -->
+      <circle cx="156" cy="172" r="44" opacity="0.6" />
+      <path d="M 76 342 C 76 282, 116 262, 156 262 C 182 262, 205 270, 220 284 C 194 300, 176 324, 168 356 L 96 356 C 84 356, 76 350, 76 342 Z" opacity="0.5" />
+
+      <!-- Right Person -->
+      <circle cx="356" cy="172" r="44" opacity="0.6" />
+      <path d="M 436 342 C 436 282, 396 262, 356 262 C 330 262, 307 270, 292 284 C 318 300, 336 324, 344 356 L 416 356 C 428 356, 436 350, 436 342 Z" opacity="0.5" />
+
+      <!-- Center Person -->
+      <circle cx="256" cy="188" r="68" />
+      <path d="M 132 384 C 132 304, 188 280, 256 280 C 324 280, 380 304, 380 384 C 380 404, 364 416, 344 416 L 168 416 C 148 416, 132 404, 132 384 Z" opacity="0.95" />
+    </g>
+
+    <!-- Sparkle Badge -->
+    <g transform="translate(322, 292)">
+      <circle cx="36" cy="36" r="36" fill="#020617" />
+      <circle cx="36" cy="36" r="30" fill="url(#badgeGradM)" />
+      <path d="M 23 36 L 32 44 L 49 26" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+  </g>
+</svg>
