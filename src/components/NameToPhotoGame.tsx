@@ -39,28 +39,28 @@ export const NameToPhotoGame: React.FC<NameToPhotoGameProps> = ({
   }, [status, options, onSubmit, onNext]);
 
   return (
-    <div className="max-w-2xl mx-auto" dir="rtl">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
+    <div className="max-w-2xl mx-auto w-full" dir="rtl">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-2xl">
         {/* Name Stimulus */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-4 sm:mb-6">
           <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider block mb-1">
             בחר את התמונה של:
           </span>
           <h2
             dir="auto"
-            className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight"
+            className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight"
           >
             {person.name}
           </h2>
         </div>
 
         {/* 2x2 Photo Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 mb-4 sm:mb-6">
           {options.map((opt, index) => {
             const isSelected = lastEvaluation?.userAnswer === opt.id;
             const isCorrectTarget = opt.id === person.id;
 
-            let cardBorder = 'border-slate-800 hover:border-slate-600 hover:shadow-lg';
+            let cardBorder = 'border-slate-800 hover:border-slate-600 hover:shadow-lg active:scale-[0.98]';
 
             if (status === 'feedback') {
               if (isCorrectTarget) {
@@ -77,7 +77,7 @@ export const NameToPhotoGame: React.FC<NameToPhotoGameProps> = ({
                 key={opt.id}
                 disabled={status === 'feedback'}
                 onClick={() => onSubmit(opt.id)}
-                className={`group relative rounded-2xl overflow-hidden border-2 bg-slate-950 transition-all aspect-square flex flex-col items-center justify-center ${cardBorder}`}
+                className={`group relative rounded-xl sm:rounded-2xl overflow-hidden border-2 bg-slate-950 transition-all aspect-square flex flex-col items-center justify-center ${cardBorder}`}
               >
                 {/* Photo */}
                 {opt.photoUrl ? (
@@ -91,7 +91,7 @@ export const NameToPhotoGame: React.FC<NameToPhotoGameProps> = ({
                 )}
 
                 {/* Number Badge */}
-                <div className="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg bg-slate-900/90 backdrop-blur-sm border border-slate-700/80 text-xs font-mono font-bold text-white flex items-center justify-center shadow-md">
+                <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-900/90 backdrop-blur-sm border border-slate-700/80 text-[10px] sm:text-xs font-mono font-bold text-white flex items-center justify-center shadow-md">
                   {index + 1}
                 </div>
 
@@ -99,13 +99,13 @@ export const NameToPhotoGame: React.FC<NameToPhotoGameProps> = ({
                 {status === 'feedback' && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     {isCorrectTarget && (
-                      <div className="w-12 h-12 rounded-full bg-emerald-500/90 text-white flex items-center justify-center shadow-xl animate-bounce">
-                        <Check className="w-7 h-7 stroke-[3]" />
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-500/90 text-white flex items-center justify-center shadow-xl animate-bounce">
+                        <Check className="w-5 h-5 sm:w-7 sm:h-7 stroke-[3]" />
                       </div>
                     )}
                     {isSelected && !lastEvaluation?.isCorrect && (
-                      <div className="w-12 h-12 rounded-full bg-rose-500/90 text-white flex items-center justify-center shadow-xl">
-                        <X className="w-7 h-7 stroke-[3]" />
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-rose-500/90 text-white flex items-center justify-center shadow-xl">
+                        <X className="w-5 h-5 sm:w-7 sm:h-7 stroke-[3]" />
                       </div>
                     )}
                   </div>
@@ -130,7 +130,7 @@ export const NameToPhotoGame: React.FC<NameToPhotoGameProps> = ({
             <button
               onClick={onNext}
               autoFocus
-              className="w-full py-3.5 px-4 rounded-xl bg-slate-100 hover:bg-white text-slate-900 font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2"
+              className="w-full min-h-[46px] py-3 sm:py-3.5 px-4 rounded-xl bg-slate-100 hover:bg-white active:scale-[0.98] text-slate-900 font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2"
             >
               <span>המשך לשאלה הבאה (Enter)</span>
               <ArrowLeft className="w-4 h-4" />

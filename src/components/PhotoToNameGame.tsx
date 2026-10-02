@@ -45,11 +45,11 @@ export const PhotoToNameGame: React.FC<PhotoToNameGameProps> = ({
   };
 
   return (
-    <div className="max-w-md mx-auto" dir="rtl">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center">
-        {/* Photo Container */}
-        <div className="relative mb-6 group">
-          <div className="w-52 h-52 sm:w-60 sm:h-60 rounded-2xl overflow-hidden border-2 border-slate-700/80 bg-slate-950 shadow-inner flex items-center justify-center">
+    <div className="max-w-md mx-auto w-full" dir="rtl">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-2xl flex flex-col items-center">
+        {/* Photo Container - compact & responsive for virtual keyboards */}
+        <div className="relative mb-3 sm:mb-6 group">
+          <div className="w-36 h-36 sm:w-56 sm:h-56 max-h-[25dvh] max-w-[25dvh] aspect-square rounded-2xl overflow-hidden border-2 border-slate-700/80 bg-slate-950 shadow-inner flex items-center justify-center">
             {person.photoUrl ? (
               <img
                 src={person.photoUrl}
@@ -64,8 +64,8 @@ export const PhotoToNameGame: React.FC<PhotoToNameGameProps> = ({
 
         {/* Input Form */}
         <form onSubmit={handleSubmit} className="w-full">
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-slate-400 mb-2 text-right">
+          <div className="mb-3 sm:mb-4">
+            <label className="block text-xs font-semibold text-slate-400 mb-1.5 sm:mb-2 text-right">
               מה שמו המלא של האדם בתמונה?
             </label>
             <input
@@ -76,7 +76,12 @@ export const PhotoToNameGame: React.FC<PhotoToNameGameProps> = ({
               disabled={status === 'feedback'}
               onChange={(e) => setInputVal(e.target.value)}
               placeholder="הקלד כאן את השם..."
-              className={`w-full px-4 py-3 rounded-xl bg-slate-950 border text-slate-100 placeholder:text-slate-500 text-base font-medium focus:outline-none transition-all ${
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              enterKeyHint="go"
+              className={`w-full min-h-[46px] px-4 py-2.5 sm:py-3 rounded-xl bg-slate-950 border text-slate-100 placeholder:text-slate-500 text-base font-medium focus:outline-none transition-all ${
                 status === 'feedback'
                   ? lastEvaluation?.isCorrect
                     ? lastEvaluation.isTypo
@@ -91,7 +96,7 @@ export const PhotoToNameGame: React.FC<PhotoToNameGameProps> = ({
           {/* Feedback Display */}
           {status === 'feedback' && lastEvaluation && (
             <div
-              className={`w-full p-4 rounded-xl mb-4 border flex items-start gap-3 transition-all ${
+              className={`w-full p-3 sm:p-4 rounded-xl mb-3 sm:mb-4 border flex items-start gap-2.5 sm:gap-3 transition-all ${
                 lastEvaluation.isCorrect
                   ? lastEvaluation.isTypo
                     ? 'bg-amber-950/30 border-amber-500/40 text-amber-200'
@@ -130,13 +135,13 @@ export const PhotoToNameGame: React.FC<PhotoToNameGameProps> = ({
           )}
 
           {/* Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             {status === 'pending' ? (
               <>
                 <button
                   type="submit"
                   disabled={!inputVal.trim()}
-                  className="flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2"
+                  className="flex-1 min-h-[46px] py-2.5 sm:py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2"
                 >
                   <span>בדוק תשובה</span>
                   <ArrowLeft className="w-4 h-4" />
@@ -144,7 +149,7 @@ export const PhotoToNameGame: React.FC<PhotoToNameGameProps> = ({
                 <button
                   type="button"
                   onClick={handleSkip}
-                  className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors"
+                  className="min-h-[46px] py-2.5 sm:py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-750 active:scale-[0.98] text-slate-400 hover:text-slate-200 text-sm font-medium transition-all"
                 >
                   לא יודע
                 </button>
@@ -154,7 +159,7 @@ export const PhotoToNameGame: React.FC<PhotoToNameGameProps> = ({
                 type="button"
                 onClick={onNext}
                 autoFocus
-                className="w-full py-3 px-4 rounded-xl bg-slate-100 hover:bg-white text-slate-900 font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2"
+                className="w-full min-h-[46px] py-2.5 sm:py-3 px-4 rounded-xl bg-slate-100 hover:bg-white active:scale-[0.98] text-slate-900 font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2"
               >
                 <span>המשך לשאלה הבאה</span>
                 <ArrowLeft className="w-4 h-4" />

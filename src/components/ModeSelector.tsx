@@ -99,28 +99,28 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
   ];
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4" dir="rtl">
+    <div className="max-w-5xl mx-auto w-full py-2 sm:py-4" dir="rtl">
       {/* Title & Welcome */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">
+      <div className="text-center mb-5 sm:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1.5 sm:mb-2">
           בחר מצב תרגול
         </h2>
-        <p className="text-slate-400 text-sm max-w-xl mx-auto">
+        <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto">
           מאגר הפרופילים מכיל <span className="font-semibold text-indigo-300">{peopleCount} אנשים</span>. בחר את אופן המשחק והתאם את ההגדרות.
         </p>
       </div>
 
       {/* Settings Bar */}
-      <div className="mb-8 p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 shadow-md flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-5 sm:mb-8 p-3 sm:p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 shadow-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
         {/* Question Count */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-slate-400">אורך סבב:</span>
-          <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800">
+        <div className="flex items-center justify-between sm:justify-start gap-2">
+          <span className="text-xs font-medium text-slate-400 shrink-0">אורך סבב:</span>
+          <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 flex-1 sm:flex-initial justify-between">
             {roundSizeOptions.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => onUpdateSettings({ questionCount: opt.value })}
-                className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                className={`min-h-[36px] flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-semibold active:scale-[0.96] transition-all flex items-center justify-center ${
                   settings.questionCount === opt.value
                     ? 'bg-indigo-600 text-white shadow'
                     : 'text-slate-400 hover:text-slate-200'
@@ -133,36 +133,41 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
         </div>
 
         {/* Typo Tolerance Toggle */}
-        <label className="flex items-center gap-2.5 cursor-pointer text-xs select-none">
+        <label className="flex items-center justify-between sm:justify-end gap-3 cursor-pointer text-xs select-none p-2 rounded-xl hover:bg-slate-800/40 active:scale-[0.99] min-h-[44px] transition-all">
+          <input
+            type="checkbox"
+            checked={settings.allowTypo}
+            onChange={(e) => onUpdateSettings({ allowTypo: e.target.checked })}
+            className="sr-only"
+          />
+          <span className="text-slate-300 font-medium">
+            סובלנות לשגיאות הקלדה קלות (Levenshtein)
+          </span>
           <div
-            onClick={() => onUpdateSettings({ allowTypo: !settings.allowTypo })}
-            className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors ${
+            className={`w-10 h-6 flex items-center rounded-full p-0.5 transition-colors shrink-0 ${
               settings.allowTypo ? 'bg-indigo-600' : 'bg-slate-700'
             }`}
           >
             <div
-              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+              className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform ${
                 settings.allowTypo ? '-translate-x-4' : 'translate-x-0'
               }`}
             />
           </div>
-          <span className="text-slate-300 font-medium">
-            סובלנות לשגיאות הקלדה קלות (Levenshtein)
-          </span>
         </label>
       </div>
 
       {/* Game Mode Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-6">
         {modes.map((mode) => (
           <div
             key={mode.id}
             onClick={() => onStartMode(mode.id)}
-            className={`cursor-pointer rounded-2xl bg-gradient-to-b ${mode.color} bg-slate-900 border border-slate-800 p-6 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${mode.borderHover} group`}
+            className={`cursor-pointer rounded-2xl bg-gradient-to-b ${mode.color} bg-slate-900 border border-slate-800 p-4 sm:p-6 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 active:scale-[0.98] hover:shadow-xl ${mode.borderHover} group`}
           >
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 group-hover:scale-110 transition-transform">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <div className="p-2.5 sm:p-3 rounded-xl bg-slate-950/80 border border-slate-800 group-hover:scale-110 transition-transform">
                   {mode.icon}
                 </div>
                 <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${mode.accentBg}`}>
@@ -170,10 +175,10 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
                 </span>
               </div>
 
-              <h3 className="text-xl font-bold text-white mb-2 group-hover:text-indigo-300 transition-colors">
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-1.5 sm:mb-2 group-hover:text-indigo-300 transition-colors">
                 {mode.title}
               </h3>
-              <p className="text-slate-400 text-xs leading-relaxed mb-6">
+              <p className="text-slate-400 text-xs leading-relaxed mb-4 sm:mb-6">
                 {mode.description}
               </p>
             </div>
@@ -183,7 +188,7 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
                 e.stopPropagation();
                 onStartMode(mode.id);
               }}
-              className="w-full py-2.5 rounded-xl bg-slate-800 group-hover:bg-indigo-600 text-slate-200 group-hover:text-white font-semibold text-xs transition-all shadow-sm flex items-center justify-center gap-1.5"
+              className="w-full min-h-[44px] py-2.5 rounded-xl bg-slate-800 group-hover:bg-indigo-600 active:scale-[0.98] text-slate-200 group-hover:text-white font-semibold text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center gap-1.5"
             >
               <span>התחל משחק</span>
               <Check className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />

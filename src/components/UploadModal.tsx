@@ -78,20 +78,29 @@ export const UploadModal: React.FC<UploadModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm" dir="rtl">
-      <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200"
+      dir="rtl"
+    >
+      <div className="relative w-full max-w-lg bg-slate-900 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl overflow-y-auto max-h-[90dvh] pb-safe sm:pb-8">
+        {/* Mobile handle indicator */}
+        <div className="w-12 h-1 bg-slate-700/60 rounded-full mx-auto mb-3 sm:hidden" />
+
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 left-5 p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+          className="absolute top-4 left-4 sm:top-5 sm:left-5 min-w-[40px] min-h-[40px] flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 active:scale-[0.96] transition-all"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Modal Title */}
-        <div className="text-right mb-6">
-          <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
-            <FileArchive className="w-6 h-6 text-indigo-400" />
+        <div className="text-right mb-5 sm:mb-6 pr-1">
+          <h3 className="text-xl sm:text-2xl font-bold text-white mb-1 flex items-center gap-2">
+            <FileArchive className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400 shrink-0" />
             <span>העלאת קובץ ZIP</span>
           </h3>
           <p className="text-slate-400 text-xs">
@@ -108,7 +117,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center mb-5 ${
+          className={`border-2 border-dashed rounded-2xl p-5 sm:p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center mb-4 sm:mb-5 active:scale-[0.99] ${
             isDragging
               ? 'border-indigo-500 bg-indigo-950/30'
               : 'border-slate-700 bg-slate-950/50 hover:border-slate-600 hover:bg-slate-950'
@@ -215,7 +224,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
           <button
             type="button"
             onClick={handleDownloadSample}
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
+            className="min-h-[40px] px-2 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 active:scale-[0.96] transition-all"
           >
             <Download className="w-3.5 h-3.5" />
             <span>הורד ZIP לדוגמה</span>
@@ -227,7 +236,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               onLoadDemo();
               onClose();
             }}
-            className="flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors"
+            className="min-h-[40px] px-2 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300 active:scale-[0.96] transition-all"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>טען 8 פרופילי דמו</span>

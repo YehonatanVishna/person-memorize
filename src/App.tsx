@@ -116,7 +116,7 @@ export function App() {
   const isGameActive = status === 'pending' || status === 'feedback';
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-600 selection:text-white font-sans antialiased">
+    <div className="min-h-dvh flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-600 selection:text-white font-sans antialiased overflow-x-hidden">
       {/* Top Navbar */}
       <Header
         peopleCount={people.length}
@@ -127,7 +127,7 @@ export function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col justify-center px-4 py-8 max-w-5xl mx-auto w-full">
+      <main className="flex-1 flex flex-col justify-start sm:justify-center px-3 sm:px-4 py-3 sm:py-8 max-w-5xl mx-auto w-full">
         {isInitializing ? (
           <div className="text-center py-20 text-slate-400">
             <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-indigo-400" />
@@ -201,19 +201,21 @@ export function App() {
         ) : null}
       </main>
 
-      {/* Footer Info */}
-      <footer className="w-full border-t border-slate-900 py-6 px-4 text-center text-xs text-slate-500">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>פרטיות מלאה: כל המידע והתמונות נשמרים מקומית בדפדפן בלבד (IndexedDB) ללא שרת חיצוני.</span>
+      {/* Footer Info - hidden during active game to preserve vertical screen space on mobile */}
+      {!isGameActive && (
+        <footer className="w-full border-t border-slate-900 py-4 sm:py-6 px-4 pb-safe text-center text-xs text-slate-500">
+          <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>פרטיות מלאה: כל המידע והתמונות נשמרים מקומית בדפדפן בלבד (IndexedDB) ללא שרת חיצוני.</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-400">
+              <Database className="w-3.5 h-3.5" />
+              <span>React + Vite + JSZip</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <Database className="w-3.5 h-3.5" />
-            <span>React + Vite + JSZip</span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* Modals */}
       <UploadModal
