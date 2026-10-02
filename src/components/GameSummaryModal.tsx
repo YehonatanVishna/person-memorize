@@ -99,7 +99,7 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
               </button>
             </div>
 
-            <div className="space-y-2 max-h-56 sm:max-h-60 overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-56 sm:max-h-60 overflow-y-auto pl-2 pr-1">
               {summary.mistakes.map((mistake, idx) => (
                 <div
                   key={`${mistake.person.id}-${idx}`}

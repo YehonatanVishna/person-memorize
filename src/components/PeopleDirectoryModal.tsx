@@ -154,7 +154,7 @@ export const PeopleDirectoryModal: React.FC<PeopleDirectoryModalProps> = ({
         </div>
 
         {/* People List */}
-        <div className="flex-1 overflow-y-auto pr-1 space-y-2.5">
+        <div className="flex-1 overflow-y-auto pl-2 pr-1 space-y-2.5">
           {filteredPeople.length === 0 ? (
             <div className="p-8 text-center text-slate-500 text-xs">
               {people.length === 0
