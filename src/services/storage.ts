@@ -73,6 +73,27 @@ export async function deletePersonFromStorage(id: string): Promise<void> {
 }
 
 /**
+ * Update an existing person in IndexedDB.
+ * If the ID has changed, delete the old key and insert the updated record atomically.
+ */
+export async function updatePersonInStorage(oldId: string, updated: StoredPerson): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+
+    if (oldId !== updated.id) {
+      store.delete(oldId);
+    }
+    store.put(updated);
+
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
+}
+
+/**
  * Clear all stored people.
  */
 export async function clearAllPeopleFromStorage(): Promise<void> {
@@ -96,6 +117,7 @@ export function hydrateRuntimePeople(storedList: StoredPerson[]): Person[] {
     name: item.name,
     photoBlob: item.photoBlob,
     photoUrl: URL.createObjectURL(item.photoBlob),
+    createdAt: item.createdAt,
   }));
 }
 

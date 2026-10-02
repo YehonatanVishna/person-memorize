@@ -15,6 +15,7 @@ import {
   getAllStoredPeople,
   hydrateRuntimePeople,
   savePeopleToStorage,
+  updatePersonInStorage,
   cleanupRuntimePeople,
 } from './services/storage';
 import { getDemoStoredPeople } from './services/demoData';
@@ -86,6 +87,11 @@ export function App() {
 
   const handleDeletePerson = async (id: string) => {
     await deletePersonFromStorage(id);
+    await refreshPeople();
+  };
+
+  const handleUpdatePerson = async (oldId: string, updated: StoredPerson) => {
+    await updatePersonInStorage(oldId, updated);
     await refreshPeople();
   };
 
@@ -230,6 +236,7 @@ export function App() {
         onClose={() => setIsDirectoryOpen(false)}
         people={people}
         onDeletePerson={handleDeletePerson}
+        onUpdatePerson={handleUpdatePerson}
         onClearAll={handleClearAll}
       />
     </div>

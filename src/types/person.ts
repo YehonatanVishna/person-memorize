@@ -3,6 +3,7 @@ export interface Person {
   name: string;
   photoBlob: Blob;
   photoUrl: string;
+  createdAt?: number;
 }
 
 export interface StoredPerson {
