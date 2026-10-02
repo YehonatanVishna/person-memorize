@@ -1,32 +1,81 @@
-# React + TypeScript + Vite
+# שינון אנשים - אפליקציית תרגול שמות, תמונות ותעודות זהות
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+אפליקציית React מקומית לחלוטין (Client-Side Only ללא שרת), המיועדת לתרגול ושינון פרטי קבוצת אנשים (שם, תמונה ומספר תעודת זהות).
 
-Currently, two official plugins are available:
+כל המידע נשמר אך ורק בדפדפן המקומי של המשתמש באמצעות **IndexedDB** (ללא מגבלת ה-5MB של localStorage), תוך שמירה מלאה על פרטיות.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🎮 מצבי משחק
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **תמונה ← כתיבת שם** (`Photo → Name`):
+   - מוצגת תמונת האדם, והשחקן מקליד את שמו המלא.
+   - **תמיכה מתקדמת בעברית**: הסרת ניקוד וטעמי מקרא, התעלמות מרווחים כפולים, תמיכה בהיפוך סדר שמות (שם פרטי/משפחה).
+   - **מנגנון סובלנות לשגיאות הקלדה**: שימוש באלגוריתם Levenshtein לזיהוי שגיאות הקלדה קלות (אות אחת שגויה).
+   - לחצן "לא יודע / דלג" למעבר מהיר.
 
-## Expanding the Oxlint configuration
+2. **שם ← בחירת תעודת זהות** (`Name → ID`):
+   - מוצג שמו המלא של האדם, ועליך לבחור את מספר תעודת הזהות הנכון מתוך 4 אפשרויות אמריקאיות.
+   - קיצורי מקלדת: מקשים `1`, `2`, `3`, `4` לבחירה מהירה, ומקש `Enter` להמשך.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+3. **שם ← בחירת תמונה** (`Name → Photo`):
+   - מוצג שמו המלא של האדם, ועליך לזהות את תמונתו מתוך רשת של 4 תמונות.
+   - קיצורי מקלדת: מקשים `1`, `2`, `3`, `4`.
+   - חשיפת שמות שאר המועמדים במסך המשוב להעמקת הלמידה.
 
+---
+
+## 📁 מבנה קובץ ה-ZIP הנתמך
+
+האפליקציה מקבלת קובץ ZIP המכיל:
+1. **קובץ נתונים (Manifest)**:
+   - `people.json`, `manifest.json`, `data.json`, או `roster.json`
+   - **או** קובץ CSV: `people.csv`, `manifest.csv`, `data.csv`, `roster.csv`
+2. **קובצי תמונות** התואמים לשמות המופיעים בקובץ הנתונים (פורמטים נתמכים: JPG, PNG, WEBP, SVG, GIF).
+
+### דוגמה לקובץ `people.json`:
 ```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+[
+  { "id": "208192345", "name": "ישראל ישראלי", "photo": "israel.jpg" },
+  { "id": "312847561", "name": "נועה לוי", "photo": "photos/noa.png" }
+]
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### דוגמה לקובץ `people.csv`:
+```csv
+id,name,photo
+208192345,ישראל ישראלי,israel.jpg
+312847561,נועה לוי,photos/noa.png
+```
+
+> **טיפ:** באפליקציה יש כפתור **"הורד ZIP לדוגמה"** המייצר בלחיצה אחת קובץ ZIP תקין לחלוטין עם קובץ JSON ותמונות לדוגמה, וכפתור **"טען 8 פרופילי דמו"** להתנסות מיידית ללא צורך בהעלאת קבצים.
+
+---
+
+## 🚀 הרצה והתקנה
+
+```bash
+# התקנת תלויות
+npm install
+
+# הרצת שרת פיתוח
+npm run dev
+
+# הרצת בדיקות יחידה
+npm test
+
+# בניית גרסת ייצור
+npm run build
+```
+
+---
+
+## 🛠️ טכנולוגיות
+
+- **React 19** + **TypeScript** + **Vite**
+- **Tailwind CSS v4** לעיצוב מודרני מותאם RTL
+- **IndexedDB** לאחסון בינארי בטוח של תמונות (Blobs) ללא צורך בשרת
+- **JSZip** לחילוץ ויצירת קובצי ZIP ישירות בדפדפן
+- **PapaParse** לפענוח קובצי CSV
+- **Canvas-Confetti** לאפקטים בסיום סבב מוצלח
+- **Vitest** לבדיקות יחידה
