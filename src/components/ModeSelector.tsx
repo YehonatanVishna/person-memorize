@@ -1,5 +1,17 @@
 import type { GameMode, GameSettings } from '../types/person';
-import { Camera, CreditCard, Image as ImageIcon, Sparkles, Upload, Check } from 'lucide-react';
+import {
+  Camera,
+  CreditCard,
+  Image as ImageIcon,
+  Sparkles,
+  Upload,
+  Check,
+  Shuffle,
+  Binary,
+  Layers,
+  UserCheck,
+  KeyRound,
+} from 'lucide-react';
 
 interface ModeSelectorProps {
   peopleCount: number;
@@ -27,11 +39,23 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
     color: string;
     accentBg: string;
     borderHover: string;
+    featured?: boolean;
   }[] = [
+    {
+      id: 'mix',
+      title: 'סבב מעורב (כל המצבים)',
+      description: 'האתגר האולטימטיבי! כל שאלה נבחרת בסבב ממצב משחק שונה - זיהוי תמונה, בחירת ת"ז, כתיבה ועוד.',
+      badge: 'אתגר משולב 🎲',
+      icon: <Shuffle className="w-7 h-7 text-cyan-400" />,
+      color: 'from-cyan-500/25 via-indigo-500/15 to-purple-500/10',
+      accentBg: 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300',
+      borderHover: 'hover:border-cyan-400/60 hover:shadow-cyan-500/10 ring-1 ring-cyan-500/20',
+      featured: true,
+    },
     {
       id: 'photo-to-name',
       title: 'תמונה ← כתיבת שם',
-      description: 'מוצגת תמונה של אדם אחד, ועליך להקליד במדויק את שמו המלא (כולל תמיכה בשמות עבריים ובדיקת שגיאות הקלדה קלות).',
+      description: 'מוצגת תמונה, ועליך להקליד במדויק את שמו המלא של האדם (כולל תמיכה בשגיאות הקלדה קלות).',
       badge: 'הקלדה חופשית',
       icon: <Camera className="w-7 h-7 text-indigo-400" />,
       color: 'from-indigo-500/20 to-blue-500/10',
@@ -39,9 +63,19 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
       borderHover: 'hover:border-indigo-500/50 hover:shadow-indigo-500/10',
     },
     {
+      id: 'name-to-photo',
+      title: 'שם ← בחירת תמונה',
+      description: 'מוצג שם האדם, ועליך לזהות ולבחור את תמונתו הנכונה מתוך 4 תמונות אפשריות.',
+      badge: 'זיהוי חזותי',
+      icon: <ImageIcon className="w-7 h-7 text-emerald-400" />,
+      color: 'from-emerald-500/20 to-teal-500/10',
+      accentBg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300',
+      borderHover: 'hover:border-emerald-500/50 hover:shadow-emerald-500/10',
+    },
+    {
       id: 'name-to-id',
-      title: 'שם ← בחירת תעודת זהות',
-      description: 'מוצג שם האדם, ועליך לבחור את מספר תעודת הזהות התואמת מתוך 4 אפשרויות אמריקאיות (עם קיצורי מקלדת 1-4).',
+      title: 'שם ← בחירת ת"ז',
+      description: 'מוצג שם האדם, ועליך לבחור את מספר תעודת הזהות המתאימה מתוך 4 אפשרויות (קיצורי 1-4).',
       badge: 'בחירה מרובה',
       icon: <CreditCard className="w-7 h-7 text-violet-400" />,
       color: 'from-violet-500/20 to-purple-500/10',
@@ -49,14 +83,44 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
       borderHover: 'hover:border-violet-500/50 hover:shadow-violet-500/10',
     },
     {
-      id: 'name-to-photo',
-      title: 'שם ← בחירת תמונה',
-      description: 'מוצג שם האדם, ועליך לזהות ולבחור את תמונתו הנכונה מתוך רשת של 4 תמונות אפשריות.',
+      id: 'photo-to-id',
+      title: 'תמונה ← בחירת ת"ז',
+      description: 'מוצגת תמונה, ועליך לבחור את מספר תעודת הזהות של האדם מתוך 4 אפשרויות.',
+      badge: 'בחירה מרובה',
+      icon: <Binary className="w-7 h-7 text-amber-400" />,
+      color: 'from-amber-500/20 to-orange-500/10',
+      accentBg: 'bg-amber-500/10 border-amber-500/30 text-amber-300',
+      borderHover: 'hover:border-amber-500/50 hover:shadow-amber-500/10',
+    },
+    {
+      id: 'id-to-photo',
+      title: 'ת"ז ← בחירת תמונה',
+      description: 'מוצג מספר תעודת זהות, ועליך לבחור את תמונתו של בעל התעודה מתוך רשת של 4 תמונות.',
       badge: 'זיהוי חזותי',
-      icon: <ImageIcon className="w-7 h-7 text-emerald-400" />,
-      color: 'from-emerald-500/20 to-teal-500/10',
-      accentBg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300',
-      borderHover: 'hover:border-emerald-500/50 hover:shadow-emerald-500/10',
+      icon: <Layers className="w-7 h-7 text-teal-400" />,
+      color: 'from-teal-500/20 to-cyan-500/10',
+      accentBg: 'bg-teal-500/10 border-teal-500/30 text-teal-300',
+      borderHover: 'hover:border-teal-500/50 hover:shadow-teal-500/10',
+    },
+    {
+      id: 'id-to-name',
+      title: 'ת"ז ← בחירת שם',
+      description: 'מוצג מספר תעודת זהות, ועליך לבחור את השם המלא המתאים מתוך 4 אפשרויות.',
+      badge: 'בחירה מרובה',
+      icon: <UserCheck className="w-7 h-7 text-sky-400" />,
+      color: 'from-sky-500/20 to-blue-500/10',
+      accentBg: 'bg-sky-500/10 border-sky-500/30 text-sky-300',
+      borderHover: 'hover:border-sky-500/50 hover:shadow-sky-500/10',
+    },
+    {
+      id: 'photo-to-id-type',
+      title: 'תמונה ← הקלדת ת"ז',
+      description: 'מוצגת תמונה, ועליך להקליד במדויק את מספר תעודת הזהות של האדם במקלדת נומרית.',
+      badge: 'הקלדת מספרים',
+      icon: <KeyRound className="w-7 h-7 text-rose-400" />,
+      color: 'from-rose-500/20 to-pink-500/10',
+      accentBg: 'bg-rose-500/10 border-rose-500/30 text-rose-300',
+      borderHover: 'hover:border-rose-500/50 hover:shadow-rose-500/10',
     },
   ];
 
@@ -113,14 +177,14 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
       {/* Settings Bar */}
       <div className="mb-5 sm:mb-8 p-3 sm:p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 shadow-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
         {/* Question Count */}
-        <div className="flex items-center justify-between sm:justify-start gap-2">
+        <div className="flex flex-wrap items-center justify-between sm:justify-start gap-2">
           <span className="text-xs font-medium text-slate-400 shrink-0">אורך סבב:</span>
-          <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 flex-1 sm:flex-initial justify-between">
+          <div className="flex flex-wrap items-center bg-slate-950 p-1 rounded-lg border border-slate-800 flex-1 sm:flex-initial gap-1">
             {roundSizeOptions.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => onUpdateSettings({ questionCount: opt.value })}
-                className={`min-h-[36px] flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-semibold active:scale-[0.96] transition-all flex items-center justify-center ${
+                className={`min-h-[40px] flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-semibold active:scale-[0.96] transition-all flex items-center justify-center ${
                   settings.questionCount === opt.value
                     ? 'bg-indigo-600 text-white shadow'
                     : 'text-slate-400 hover:text-slate-200'
@@ -158,12 +222,14 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
       </div>
 
       {/* Game Mode Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4">
         {modes.map((mode) => (
           <div
             key={mode.id}
             onClick={() => onStartMode(mode.id)}
-            className={`cursor-pointer rounded-2xl bg-gradient-to-b ${mode.color} bg-slate-900 border border-slate-800 p-4 sm:p-6 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 active:scale-[0.98] hover:shadow-xl ${mode.borderHover} group`}
+            className={`cursor-pointer rounded-2xl bg-gradient-to-b ${mode.color} bg-slate-900 border ${
+              mode.featured ? 'border-cyan-500/50 shadow-cyan-500/5' : 'border-slate-800'
+            } p-4 sm:p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 active:scale-[0.98] hover:shadow-xl ${mode.borderHover} group`}
           >
             <div>
               <div className="flex items-center justify-between mb-3 sm:mb-4">

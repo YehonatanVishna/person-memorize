@@ -19,24 +19,34 @@ export interface ManifestItem {
   photo: string;
 }
 
-export type GameMode = 'photo-to-name' | 'name-to-id' | 'name-to-photo';
+export type ConcreteGameMode =
+  | 'photo-to-name'
+  | 'name-to-photo'
+  | 'name-to-id'
+  | 'photo-to-id'
+  | 'id-to-photo'
+  | 'id-to-name'
+  | 'photo-to-id-type';
+
+export type GameMode = ConcreteGameMode | 'mix';
 
 export interface GameSettings {
   questionCount: number; // e.g. 5, 10, 20, or -1 for all
-  allowTypo: boolean;    // Levenshtein typo tolerance in photo-to-name
+  allowTypo: boolean;    // Levenshtein typo tolerance in name typing
   shuffleQuestions: boolean;
 }
 
 export interface QuestionRecord {
   person: Person;
-  options?: (string | Person)[]; // IDs or Persons for multiple choice
+  mode: ConcreteGameMode;
+  options?: Person[];
 }
 
 export interface MistakeRecord {
   person: Person;
   userAnswer: string;
   correctAnswer: string;
-  mode: GameMode;
+  mode: ConcreteGameMode;
   isTypo?: boolean;
 }
 

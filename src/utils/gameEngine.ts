@@ -1,11 +1,21 @@
-import type { GameMode, MistakeRecord, Person } from '../types/person';
+import type { ConcreteGameMode, GameMode, MistakeRecord, Person, QuestionRecord } from '../types/person';
 import { checkNameMatch } from './hebrew';
 
 export type RoundStatus = 'idle' | 'pending' | 'feedback' | 'completed';
 
+export const ALL_CONCRETE_MODES: readonly ConcreteGameMode[] = [
+  'photo-to-name',
+  'name-to-photo',
+  'name-to-id',
+  'photo-to-id',
+  'id-to-photo',
+  'id-to-name',
+  'photo-to-id-type',
+];
+
 export interface QuestionRound {
   target: Person;
-  options: Person[]; // For MC modes 2 & 3
+  options: Person[]; // For MC modes
 }
 
 export interface RoundEvaluation {
@@ -57,21 +67,42 @@ export function generateQuestionOptions(
 export function buildQuestionQueue(
   pool: readonly Person[],
   questionCount: number,
-  shouldShuffle: boolean = true
-): Person[] {
+  shouldShuffle: boolean = true,
+  sessionMode: GameMode = 'photo-to-name'
+): QuestionRecord[] {
   if (pool.length === 0) return [];
   const basePool = shouldShuffle ? shuffle(pool) : [...pool];
-  if (questionCount <= 0 || questionCount >= basePool.length) {
-    return basePool;
+  const selectedPeople =
+    questionCount <= 0 || questionCount >= basePool.length
+      ? basePool
+      : basePool.slice(0, questionCount);
+
+  if (sessionMode === 'mix') {
+    // Distribute modes fairly across the queue
+    let modeCycle = shuffle([...ALL_CONCRETE_MODES]);
+    return selectedPeople.map((person) => {
+      if (modeCycle.length === 0) {
+        modeCycle = shuffle([...ALL_CONCRETE_MODES]);
+      }
+      const mode = modeCycle.pop()!;
+      return {
+        person,
+        mode,
+      };
+    });
   }
-  return basePool.slice(0, questionCount);
+
+  return selectedPeople.map((person) => ({
+    person,
+    mode: sessionMode,
+  }));
 }
 
 /**
- * Evaluate an answer for any game mode.
+ * Evaluate an answer for any concrete game mode.
  */
 export function evaluateAnswer(
-  mode: GameMode,
+  mode: ConcreteGameMode,
   target: Person,
   rawAnswer: string,
   allowTypo: boolean = true,
@@ -79,6 +110,7 @@ export function evaluateAnswer(
 ): RoundEvaluation {
   const answer = rawAnswer.trim();
 
+  // Mode 1: Photo -> Name (free text input with Hebrew typo tolerance)
   if (mode === 'photo-to-name') {
     const match = checkNameMatch(answer, target.name, allowTypo);
     return {
@@ -89,6 +121,19 @@ export function evaluateAnswer(
     };
   }
 
+  // Mode 2: Name -> Photo (2x2 photo grid)
+  if (mode === 'name-to-photo') {
+    const isCorrect = answer === target.id || answer === target.name;
+    const chosenPerson = options?.find((p) => p.id === answer || p.name === answer);
+    return {
+      isCorrect,
+      isTypo: false,
+      userAnswer: chosenPerson ? chosenPerson.name : answer,
+      correctAnswer: target.name,
+    };
+  }
+
+  // Mode 3: Name -> ID (multiple choice buttons)
   if (mode === 'name-to-id') {
     const isCorrect = answer === target.id;
     return {
@@ -99,14 +144,51 @@ export function evaluateAnswer(
     };
   }
 
-  if (mode === 'name-to-photo') {
+  // Mode 4: Photo -> ID (multiple choice buttons)
+  if (mode === 'photo-to-id') {
     const isCorrect = answer === target.id;
-    const chosenPerson = options?.find((p) => p.id === answer);
+    return {
+      isCorrect,
+      isTypo: false,
+      userAnswer: answer,
+      correctAnswer: target.id,
+    };
+  }
+
+  // Mode 5: ID -> Photo (2x2 photo grid)
+  if (mode === 'id-to-photo') {
+    const isCorrect = answer === target.id || answer === target.name;
+    const chosenPerson = options?.find((p) => p.id === answer || p.name === answer);
     return {
       isCorrect,
       isTypo: false,
       userAnswer: chosenPerson ? chosenPerson.name : answer,
       correctAnswer: target.name,
+    };
+  }
+
+  // Mode 6: ID -> Name (multiple choice buttons)
+  if (mode === 'id-to-name') {
+    const isCorrect = answer === target.id || answer === target.name;
+    const chosenPerson = options?.find((p) => p.id === answer || p.name === answer);
+    return {
+      isCorrect,
+      isTypo: false,
+      userAnswer: chosenPerson ? chosenPerson.name : answer,
+      correctAnswer: target.name,
+    };
+  }
+
+  // Mode 7: Photo -> ID (free numeric typing)
+  if (mode === 'photo-to-id-type') {
+    const cleanAnswer = answer.replace(/\D/g, '');
+    const cleanTargetId = target.id.replace(/\D/g, '');
+    const isCorrect = cleanAnswer.length > 0 && cleanAnswer === cleanTargetId;
+    return {
+      isCorrect,
+      isTypo: false,
+      userAnswer: answer,
+      correctAnswer: target.id,
     };
   }
 
@@ -123,7 +205,7 @@ export function evaluateAnswer(
  */
 export function createMistakeRecord(
   target: Person,
-  mode: GameMode,
+  mode: ConcreteGameMode,
   evaluation: RoundEvaluation
 ): MistakeRecord | null {
   if (evaluation.isCorrect && !evaluation.isTypo) {

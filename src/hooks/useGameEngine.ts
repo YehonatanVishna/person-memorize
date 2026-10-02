@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import type { GameMode, GameSettings, GameSummary, MistakeRecord, Person } from '../types/person';
+import type { ConcreteGameMode, GameMode, GameSettings, GameSummary, MistakeRecord, Person, QuestionRecord } from '../types/person';
 import {
   buildQuestionQueue,
   createMistakeRecord,
@@ -13,8 +13,10 @@ import { triggerCorrectAnswerConfetti } from '../utils/confetti';
 export interface UseGameEngineReturn {
   status: RoundStatus;
   mode: GameMode;
+  currentMode: ConcreteGameMode;
   settings: GameSettings;
   currentPerson: Person | null;
+  currentRecord: QuestionRecord | null;
   currentOptions: Person[];
   currentIndex: number;
   totalQuestions: number;
@@ -24,7 +26,7 @@ export interface UseGameEngineReturn {
   highestStreak: number;
   lastEvaluation: RoundEvaluation | null;
   summary: GameSummary | null;
-  startGame: (mode: GameMode, pool: Person[], settings: GameSettings, customQueue?: Person[]) => void;
+  startGame: (mode: GameMode, pool: Person[], settings: GameSettings, customQueue?: QuestionRecord[]) => void;
   submitAnswer: (answer: string) => void;
   nextQuestion: () => void;
   retryMistakes: () => void;
@@ -42,7 +44,7 @@ export function useGameEngine(): UseGameEngineReturn {
   const [mode, setMode] = useState<GameMode>('photo-to-name');
   const [settings, setSettings] = useState<GameSettings>(DEFAULT_SETTINGS);
   const [pool, setPool] = useState<Person[]>([]);
-  const [queue, setQueue] = useState<Person[]>([]);
+  const [queue, setQueue] = useState<QuestionRecord[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [currentOptions, setCurrentOptions] = useState<Person[]>([]);
   const [score, setScore] = useState<number>(0);
@@ -58,18 +60,18 @@ export function useGameEngine(): UseGameEngineReturn {
       newMode: GameMode,
       activePool: Person[],
       customSettings: GameSettings = DEFAULT_SETTINGS,
-      customQueue?: Person[]
+      customQueue?: QuestionRecord[]
     ) => {
       if (!activePool || activePool.length === 0) return;
 
       const preparedQueue =
         customQueue && customQueue.length > 0
           ? customQueue
-          : buildQuestionQueue(activePool, customSettings.questionCount, customSettings.shuffleQuestions);
+          : buildQuestionQueue(activePool, customSettings.questionCount, customSettings.shuffleQuestions, newMode);
 
       if (preparedQueue.length === 0) return;
 
-      const firstTarget = preparedQueue[0];
+      const firstTarget = preparedQueue[0].person;
       const initialOptions = generateQuestionOptions(firstTarget, activePool, 3);
 
       setMode(newMode);
@@ -94,8 +96,11 @@ export function useGameEngine(): UseGameEngineReturn {
     (answer: string) => {
       if (status !== 'pending' || queue.length === 0) return;
 
-      const target = queue[currentIndex];
-      const evaluation = evaluateAnswer(mode, target, answer, settings.allowTypo, currentOptions);
+      const currentRecord = queue[currentIndex];
+      const target = currentRecord.person;
+      const activeMode = currentRecord.mode;
+
+      const evaluation = evaluateAnswer(activeMode, target, answer, settings.allowTypo, currentOptions);
 
       setLastEvaluation(evaluation);
       setStatus('feedback');
@@ -112,12 +117,12 @@ export function useGameEngine(): UseGameEngineReturn {
         setStreak(0);
       }
 
-      const mistake = createMistakeRecord(target, mode, evaluation);
+      const mistake = createMistakeRecord(target, activeMode, evaluation);
       if (mistake) {
         setMistakes((prev) => [...prev, mistake]);
       }
     },
-    [status, queue, currentIndex, mode, settings.allowTypo, currentOptions]
+    [status, queue, currentIndex, settings.allowTypo, currentOptions]
   );
 
   const nextQuestion = useCallback(() => {
@@ -146,7 +151,7 @@ export function useGameEngine(): UseGameEngineReturn {
       setStatus('completed');
     } else {
       // Advance to next question
-      const nextTarget = queue[nextIdx];
+      const nextTarget = queue[nextIdx].person;
       const nextOptions = generateQuestionOptions(nextTarget, pool, 3);
 
       setCurrentIndex(nextIdx);
@@ -158,8 +163,11 @@ export function useGameEngine(): UseGameEngineReturn {
 
   const retryMistakes = useCallback(() => {
     if (!summary || summary.mistakes.length === 0) return;
-    const missedPeople = summary.mistakes.map((m) => m.person);
-    startGame(mode, pool, settings, missedPeople);
+    const missedRecords: QuestionRecord[] = summary.mistakes.map((m) => ({
+      person: m.person,
+      mode: m.mode,
+    }));
+    startGame(mode, pool, settings, missedRecords);
   }, [summary, mode, pool, settings, startGame]);
 
   const resetGame = useCallback(() => {
@@ -172,15 +180,19 @@ export function useGameEngine(): UseGameEngineReturn {
     setStreak(0);
   }, []);
 
-  const currentPerson = queue[currentIndex] || null;
+  const currentRecord = queue[currentIndex] || null;
+  const currentPerson = currentRecord ? currentRecord.person : null;
+  const currentMode = currentRecord ? currentRecord.mode : (mode === 'mix' ? 'photo-to-name' : mode);
   const totalQuestions = queue.length;
   const progressPercentage = totalQuestions > 0 ? Math.round(((currentIndex + 1) / totalQuestions) * 100) : 0;
 
   return {
     status,
     mode,
+    currentMode,
     settings,
     currentPerson,
+    currentRecord,
     currentOptions,
     currentIndex,
     totalQuestions,

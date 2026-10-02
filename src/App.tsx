@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Header } from './components/Header';
 import { ModeSelector } from './components/ModeSelector';
 import { GameHeader } from './components/GameHeader';
-import { PhotoToNameGame } from './components/PhotoToNameGame';
-import { NameToIdGame } from './components/NameToIdGame';
-import { NameToPhotoGame } from './components/NameToPhotoGame';
+import { TypeAnswerGame } from './components/TypeAnswerGame';
+import { MultipleChoiceTextGame } from './components/MultipleChoiceTextGame';
+import { MultipleChoicePhotoGame } from './components/MultipleChoicePhotoGame';
 import { GameSummaryModal } from './components/GameSummaryModal';
 import { UploadModal } from './components/UploadModal';
 import { PeopleDirectoryModal } from './components/PeopleDirectoryModal';
@@ -36,6 +36,7 @@ export function App() {
   const {
     status,
     mode,
+    currentMode,
     currentPerson,
     currentOptions,
     currentIndex,
@@ -154,6 +155,7 @@ export function App() {
           <div className="w-full">
             <GameHeader
               mode={mode}
+              currentMode={currentMode}
               currentIndex={currentIndex}
               totalQuestions={totalQuestions}
               score={score}
@@ -161,10 +163,11 @@ export function App() {
               onExit={resetGame}
             />
 
-            {mode === 'photo-to-name' && (
-              <PhotoToNameGame
-                key={currentPerson.id}
+            {(currentMode === 'photo-to-name' || currentMode === 'photo-to-id-type') && (
+              <TypeAnswerGame
+                key={`${currentPerson.id}-${currentIndex}`}
                 person={currentPerson}
+                mode={currentMode}
                 status={status}
                 lastEvaluation={lastEvaluation}
                 onSubmit={submitAnswer}
@@ -172,11 +175,12 @@ export function App() {
               />
             )}
 
-            {mode === 'name-to-id' && (
-              <NameToIdGame
-                key={currentPerson.id}
+            {(currentMode === 'name-to-id' || currentMode === 'photo-to-id' || currentMode === 'id-to-name') && (
+              <MultipleChoiceTextGame
+                key={`${currentPerson.id}-${currentIndex}`}
                 person={currentPerson}
                 options={currentOptions}
+                mode={currentMode}
                 status={status}
                 lastEvaluation={lastEvaluation}
                 onSubmit={submitAnswer}
@@ -184,11 +188,12 @@ export function App() {
               />
             )}
 
-            {mode === 'name-to-photo' && (
-              <NameToPhotoGame
-                key={currentPerson.id}
+            {(currentMode === 'name-to-photo' || currentMode === 'id-to-photo') && (
+              <MultipleChoicePhotoGame
+                key={`${currentPerson.id}-${currentIndex}`}
                 person={currentPerson}
                 options={currentOptions}
+                mode={currentMode}
                 status={status}
                 lastEvaluation={lastEvaluation}
                 onSubmit={submitAnswer}

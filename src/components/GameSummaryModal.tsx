@@ -1,7 +1,26 @@
 import React, { useEffect } from 'react';
 import { Trophy, Clock, Flame, RotateCcw, AlertTriangle, ArrowRight, CheckCircle2 } from 'lucide-react';
-import type { GameSummary } from '../types/person';
+import type { ConcreteGameMode, GameSummary } from '../types/person';
 import { triggerCompletionConfetti } from '../utils/confetti';
+
+const getModeBadge = (m: ConcreteGameMode) => {
+  switch (m) {
+    case 'photo-to-name':
+      return 'תמונה ← שם';
+    case 'name-to-photo':
+      return 'שם ← תמונה';
+    case 'name-to-id':
+      return 'שם ← ת"ז';
+    case 'photo-to-id':
+      return 'תמונה ← ת"ז';
+    case 'id-to-photo':
+      return 'ת"ז ← תמונה';
+    case 'id-to-name':
+      return 'ת"ז ← שם';
+    case 'photo-to-id-type':
+      return 'הקלדת ת"ז';
+  }
+};
 
 interface GameSummaryModalProps {
   summary: GameSummary;
@@ -116,8 +135,13 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
 
                   {/* Details */}
                   <div className="flex-1 text-right min-w-0">
-                    <div className="font-bold text-xs sm:text-sm text-white truncate" dir="auto">
-                      {mistake.person.name}
+                    <div className="flex items-center gap-1.5 min-w-0 mb-0.5">
+                      <span className="font-bold text-xs sm:text-sm text-white truncate" dir="auto">
+                        {mistake.person.name}
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700/60 text-slate-300 shrink-0 font-medium">
+                        {getModeBadge(mistake.mode)}
+                      </span>
                     </div>
                     <div className="text-[11px] sm:text-xs text-slate-400 font-mono">
                       ת"ז: {mistake.person.id}
@@ -125,11 +149,11 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
                   </div>
 
                   {/* Comparison */}
-                  <div className="text-left text-[11px] sm:text-xs shrink-0">
-                    <div className="text-rose-400 font-medium">
+                  <div className="text-left text-[11px] sm:text-xs shrink-0 max-w-[130px] sm:max-w-[200px]">
+                    <div className="text-rose-400 font-medium truncate" title={mistake.userAnswer}>
                       ענית: {mistake.userAnswer || '(דלג)'}
                     </div>
-                    <div className="text-emerald-400 font-semibold">
+                    <div className="text-emerald-400 font-semibold truncate" title={mistake.correctAnswer}>
                       נכון: {mistake.correctAnswer}
                     </div>
                   </div>

@@ -1,9 +1,10 @@
 import React from 'react';
-import { ArrowRight, Flame, Trophy } from 'lucide-react';
-import type { GameMode } from '../types/person';
+import { ArrowRight, Flame, Trophy, Shuffle } from 'lucide-react';
+import type { ConcreteGameMode, GameMode } from '../types/person';
 
 interface GameHeaderProps {
   mode: GameMode;
+  currentMode?: ConcreteGameMode;
   currentIndex: number;
   totalQuestions: number;
   score: number;
@@ -13,20 +14,29 @@ interface GameHeaderProps {
 
 export const GameHeader: React.FC<GameHeaderProps> = ({
   mode,
+  currentMode,
   currentIndex,
   totalQuestions,
   score,
   streak,
   onExit,
 }) => {
-  const getModeTitle = () => {
-    switch (mode) {
+  const getSpecificTitle = (m: ConcreteGameMode) => {
+    switch (m) {
       case 'photo-to-name':
         return 'זהה את השם';
-      case 'name-to-id':
-        return 'בחר תעודת זהות';
       case 'name-to-photo':
-        return 'בחר את התמונה';
+        return 'בחר תמונה לפי שם';
+      case 'name-to-id':
+        return 'בחר ת"ז לפי שם';
+      case 'photo-to-id':
+        return 'בחר ת"ז מתמונה';
+      case 'id-to-photo':
+        return 'בחר תמונה מת"ז';
+      case 'id-to-name':
+        return 'בחר שם מת"ז';
+      case 'photo-to-id-type':
+        return 'הקלד ת"ז מתמונה';
     }
   };
 
@@ -45,9 +55,17 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
           <span className="sm:hidden">חזרה</span>
         </button>
 
-        <span className="text-xs sm:text-sm font-bold text-slate-200 tracking-wide truncate text-center">
-          {getModeTitle()}
-        </span>
+        <div className="flex items-center gap-1.5 min-w-0 justify-center">
+          {mode === 'mix' && (
+            <span className="hidden xs:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold shrink-0">
+              <Shuffle className="w-3 h-3 text-cyan-400" />
+              <span>מעורב</span>
+            </span>
+          )}
+          <span className="text-xs sm:text-sm font-bold text-slate-200 tracking-wide truncate text-center">
+            {mode === 'mix' && currentMode ? getSpecificTitle(currentMode) : getSpecificTitle(mode as ConcreteGameMode)}
+          </span>
+        </div>
 
         {/* Stats: Score & Streak */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
