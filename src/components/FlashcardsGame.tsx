@@ -132,7 +132,12 @@ export const FlashcardsGame: React.FC<FlashcardsGameProps> = ({
           }`}
         >
           {/* FRONT FACE */}
-          <div className="absolute inset-0 backface-hidden rounded-3xl p-5 sm:p-7 bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-950 border border-slate-800 shadow-2xl flex flex-col items-center justify-between overflow-hidden group hover:border-slate-700 transition-colors">
+          <div
+            aria-hidden={isFlipped}
+            className={`absolute inset-0 backface-hidden rotate-y-0 rounded-3xl p-5 sm:p-7 bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-950 border border-slate-800 shadow-2xl flex flex-col items-center justify-between overflow-hidden group hover:border-slate-700 transition-[opacity,border-color] duration-200 ${
+              isFlipped ? 'opacity-0 pointer-events-none z-0' : 'opacity-100 z-10'
+            }`}
+          >
             {/* Ambient top light */}
             <div className="absolute top-0 right-1/2 translate-x-1/2 w-48 h-20 bg-indigo-500/10 blur-xl pointer-events-none rounded-full"></div>
 
@@ -195,7 +200,12 @@ export const FlashcardsGame: React.FC<FlashcardsGameProps> = ({
           </div>
 
           {/* BACK FACE (Rotated 180deg) */}
-          <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-3xl p-5 sm:p-7 bg-gradient-to-b from-indigo-950/70 via-slate-900 to-slate-950 border border-indigo-500/50 shadow-2xl shadow-indigo-500/10 flex flex-col items-center justify-between overflow-hidden">
+          <div
+            aria-hidden={!isFlipped}
+            className={`absolute inset-0 backface-hidden rotate-y-180 rounded-3xl p-5 sm:p-7 bg-gradient-to-b from-indigo-950/70 via-slate-900 to-slate-950 border border-indigo-500/50 shadow-2xl shadow-indigo-500/10 flex flex-col items-center justify-between overflow-hidden transition-opacity duration-200 ${
+              isFlipped ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'
+            }`}
+          >
             {/* Ambient glow */}
             <div className="absolute top-0 right-1/2 translate-x-1/2 w-48 h-20 bg-indigo-500/20 blur-xl pointer-events-none rounded-full"></div>
 
