@@ -21,6 +21,7 @@ export interface ManifestItem {
 
 export type ConcreteGameMode =
   | 'photo-to-name'
+  | 'photo-to-first-name'
   | 'name-to-photo'
   | 'name-to-id'
   | 'photo-to-id'
@@ -28,7 +29,9 @@ export type ConcreteGameMode =
   | 'id-to-name'
   | 'photo-to-id-type';
 
-export type GameMode = ConcreteGameMode | 'mix';
+export type GameMode = ConcreteGameMode | 'mix' | 'flashcards';
+
+export type MistakeMode = ConcreteGameMode | 'flashcards';
 
 export interface GameSettings {
   questionCount: number; // e.g. 5, 10, 20, or -1 for all
@@ -46,7 +49,7 @@ export interface MistakeRecord {
   person: Person;
   userAnswer: string;
   correctAnswer: string;
-  mode: ConcreteGameMode;
+  mode: MistakeMode;
   isTypo?: boolean;
 }
 

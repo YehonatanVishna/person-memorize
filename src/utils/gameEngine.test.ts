@@ -131,4 +131,20 @@ describe('Game Engine Utilities', () => {
     // Incorrect digits
     expect(evaluateAnswer('photo-to-id-type', target, '999999999').isCorrect).toBe(false);
   });
+
+  it('evaluates photo-to-first-name mode with first-name extraction and typo tolerance', () => {
+    const target = mockPeople[0]; // ישראל ישראלי
+
+    const exactFirst = evaluateAnswer('photo-to-first-name', target, 'ישראל');
+    expect(exactFirst.isCorrect).toBe(true);
+    expect(exactFirst.isTypo).toBe(false);
+    expect(exactFirst.correctAnswer).toBe('ישראל');
+
+    const typoFirst = evaluateAnswer('photo-to-first-name', target, 'ישרעל', true);
+    expect(typoFirst.isCorrect).toBe(true);
+    expect(typoFirst.isTypo).toBe(true);
+
+    const wrongFirst = evaluateAnswer('photo-to-first-name', target, 'נועה', true);
+    expect(wrongFirst.isCorrect).toBe(false);
+  });
 });

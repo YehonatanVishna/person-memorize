@@ -5,10 +5,12 @@ import { GameHeader } from './components/GameHeader';
 import { TypeAnswerGame } from './components/TypeAnswerGame';
 import { MultipleChoiceTextGame } from './components/MultipleChoiceTextGame';
 import { MultipleChoicePhotoGame } from './components/MultipleChoicePhotoGame';
+import { FlashcardsGame } from './components/FlashcardsGame';
 import { GameSummaryModal } from './components/GameSummaryModal';
 import { UploadModal } from './components/UploadModal';
 import { PeopleDirectoryModal } from './components/PeopleDirectoryModal';
 import { useGameEngine } from './hooks/useGameEngine';
+import { useFlashcardsEngine } from './hooks/useFlashcardsEngine';
 import {
   clearAllPeopleFromStorage,
   deletePersonFromStorage,
@@ -51,6 +53,29 @@ export function App() {
     retryMistakes,
     resetGame,
   } = useGameEngine();
+
+  const {
+    status: flashcardsStatus,
+    currentPerson: flashcardsPerson,
+    currentIndex: flashcardsIndex,
+    totalCards: flashcardsTotal,
+    isFlipped: flashcardsIsFlipped,
+    frontSide: flashcardsFrontSide,
+    score: flashcardsScore,
+    streak: flashcardsStreak,
+    summary: flashcardsSummary,
+    startFlashcards,
+    flipCard,
+    toggleFrontSide,
+    gradeCard,
+    retryMistakes: retryFlashcardsMistakes,
+    resetFlashcards,
+  } = useFlashcardsEngine();
+
+  const handleResetAll = () => {
+    resetGame();
+    resetFlashcards();
+  };
 
   // Load existing data from IndexedDB on startup
   const refreshPeople = async () => {
@@ -99,7 +124,7 @@ export function App() {
   const handleClearAll = async () => {
     await clearAllPeopleFromStorage();
     await refreshPeople();
-    resetGame();
+    handleResetAll();
   };
 
   const handleLoadDemo = async () => {
@@ -113,14 +138,23 @@ export function App() {
       setIsUploadOpen(true);
       return;
     }
-    startGame(selectedMode, people, settings);
+    if (selectedMode === 'flashcards') {
+      resetGame();
+      startFlashcards(people, settings);
+    } else {
+      resetFlashcards();
+      startGame(selectedMode, people, settings);
+    }
   };
 
   const handleUpdateSettings = (newSettings: Partial<GameSettings>) => {
     setSettings((prev) => ({ ...prev, ...newSettings }));
   };
 
-  const isGameActive = status === 'pending' || status === 'feedback';
+  const isQuizActive = status === 'pending' || status === 'feedback';
+  const isFlashcardsActive = flashcardsStatus === 'active';
+  const isGameActive = isQuizActive || isFlashcardsActive;
+  const isIdle = status === 'idle' && flashcardsStatus === 'idle';
 
   return (
     <div className="min-h-dvh flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-600 selection:text-white font-sans antialiased overflow-x-hidden">
@@ -130,7 +164,7 @@ export function App() {
         onOpenUpload={() => setIsUploadOpen(true)}
         onOpenDirectory={() => setIsDirectoryOpen(true)}
         onLoadDemo={handleLoadDemo}
-        onGoHome={resetGame}
+        onGoHome={handleResetAll}
       />
 
       {/* Main Content Area */}
@@ -140,7 +174,7 @@ export function App() {
             <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-indigo-400" />
             <p className="text-sm">טוען נתונים מהמאגר המקומי...</p>
           </div>
-        ) : status === 'idle' ? (
+        ) : isIdle ? (
           /* Mode Selector & Configuration */
           <ModeSelector
             peopleCount={people.length}
@@ -150,8 +184,29 @@ export function App() {
             onOpenUpload={() => setIsUploadOpen(true)}
             onLoadDemo={handleLoadDemo}
           />
-        ) : isGameActive && currentPerson ? (
-          /* Active Game Mode */
+        ) : isFlashcardsActive && flashcardsPerson ? (
+          /* Active Flashcards Mode */
+          <div className="w-full">
+            <GameHeader
+              mode="flashcards"
+              currentIndex={flashcardsIndex}
+              totalQuestions={flashcardsTotal}
+              score={flashcardsScore}
+              streak={flashcardsStreak}
+              onExit={handleResetAll}
+            />
+            <FlashcardsGame
+              key={`${flashcardsPerson.id}-${flashcardsIndex}`}
+              person={flashcardsPerson}
+              isFlipped={flashcardsIsFlipped}
+              frontSide={flashcardsFrontSide}
+              onFlip={flipCard}
+              onToggleFrontSide={toggleFrontSide}
+              onGrade={gradeCard}
+            />
+          </div>
+        ) : isQuizActive && currentPerson ? (
+          /* Active Quiz Mode */
           <div className="w-full">
             <GameHeader
               mode={mode}
@@ -160,10 +215,12 @@ export function App() {
               totalQuestions={totalQuestions}
               score={score}
               streak={streak}
-              onExit={resetGame}
+              onExit={handleResetAll}
             />
 
-            {(currentMode === 'photo-to-name' || currentMode === 'photo-to-id-type') && (
+            {(currentMode === 'photo-to-name' ||
+              currentMode === 'photo-to-first-name' ||
+              currentMode === 'photo-to-id-type') && (
               <TypeAnswerGame
                 key={`${currentPerson.id}-${currentIndex}`}
                 person={currentPerson}
@@ -201,13 +258,21 @@ export function App() {
               />
             )}
           </div>
+        ) : flashcardsStatus === 'completed' && flashcardsSummary ? (
+          /* Flashcards Session Completed */
+          <GameSummaryModal
+            summary={flashcardsSummary}
+            onPlayAgain={() => startFlashcards(people, settings)}
+            onRetryMistakes={retryFlashcardsMistakes}
+            onGoHome={handleResetAll}
+          />
         ) : status === 'completed' && summary ? (
-          /* Session Completed & Mistake Review */
+          /* Quiz Session Completed & Mistake Review */
           <GameSummaryModal
             summary={summary}
             onPlayAgain={() => startGame(mode, people, settings)}
             onRetryMistakes={retryMistakes}
-            onGoHome={resetGame}
+            onGoHome={handleResetAll}
           />
         ) : null}
       </main>

@@ -11,6 +11,8 @@ import {
   Layers,
   UserCheck,
   KeyRound,
+  BookOpen,
+  User,
 } from 'lucide-react';
 
 interface ModeSelectorProps {
@@ -53,14 +55,35 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
       featured: true,
     },
     {
+      id: 'flashcards',
+      title: 'כרטיסיות זיכרון (Flashcards)',
+      description: 'לימוד ושינון עצמי: הפוך כרטיסייה לחשיפת התשובה (תמונה ↔ שם ות"ז) ודרג אם ידעת או תרצה לתרגל שוב.',
+      badge: 'שינון ולימוד 🃏',
+      icon: <BookOpen className="w-7 h-7 text-fuchsia-400" />,
+      color: 'from-fuchsia-500/25 via-purple-500/15 to-indigo-500/10',
+      accentBg: 'bg-fuchsia-500/15 border-fuchsia-500/40 text-fuchsia-300',
+      borderHover: 'hover:border-fuchsia-400/60 hover:shadow-fuchsia-500/10 ring-1 ring-fuchsia-500/20',
+      featured: true,
+    },
+    {
       id: 'photo-to-name',
-      title: 'תמונה ← כתיבת שם',
+      title: 'תמונה ← כתיבת שם מלא',
       description: 'מוצגת תמונה, ועליך להקליד במדויק את שמו המלא של האדם (כולל תמיכה בשגיאות הקלדה קלות).',
       badge: 'הקלדה חופשית',
       icon: <Camera className="w-7 h-7 text-indigo-400" />,
       color: 'from-indigo-500/20 to-blue-500/10',
       accentBg: 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300',
       borderHover: 'hover:border-indigo-500/50 hover:shadow-indigo-500/10',
+    },
+    {
+      id: 'photo-to-first-name',
+      title: 'תמונה ← הקלדת שם פרטי',
+      description: 'מוצגת תמונה, ועליך להקליד את השם הפרטי בלבד של האדם (ללא שם משפחה, כולל סובלנות לשגיאות הקלדה).',
+      badge: 'שם פרטי בלבד',
+      icon: <User className="w-7 h-7 text-blue-400" />,
+      color: 'from-blue-500/20 to-indigo-500/10',
+      accentBg: 'bg-blue-500/10 border-blue-500/30 text-blue-300',
+      borderHover: 'hover:border-blue-500/50 hover:shadow-blue-500/10',
     },
     {
       id: 'name-to-photo',

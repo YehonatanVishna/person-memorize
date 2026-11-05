@@ -1,10 +1,11 @@
 import type { ConcreteGameMode, GameMode, MistakeRecord, Person, QuestionRecord } from '../types/person';
-import { checkNameMatch } from './hebrew';
+import { checkFirstNameMatch, checkNameMatch, getFirstName } from './hebrew';
 
 export type RoundStatus = 'idle' | 'pending' | 'feedback' | 'completed';
 
 export const ALL_CONCRETE_MODES: readonly ConcreteGameMode[] = [
   'photo-to-name',
+  'photo-to-first-name',
   'name-to-photo',
   'name-to-id',
   'photo-to-id',
@@ -92,9 +93,12 @@ export function buildQuestionQueue(
     });
   }
 
+  const concreteMode: ConcreteGameMode =
+    sessionMode === 'flashcards' ? 'photo-to-name' : sessionMode;
+
   return selectedPeople.map((person) => ({
     person,
-    mode: sessionMode,
+    mode: concreteMode,
   }));
 }
 
@@ -118,6 +122,18 @@ export function evaluateAnswer(
       isTypo: match.isTypo,
       userAnswer: answer,
       correctAnswer: target.name,
+    };
+  }
+
+  // Mode 1b: Photo -> First Name (free text input for first name only)
+  if (mode === 'photo-to-first-name') {
+    const firstName = getFirstName(target.name);
+    const match = checkFirstNameMatch(answer, target.name, allowTypo);
+    return {
+      isCorrect: match.isMatch,
+      isTypo: match.isTypo,
+      userAnswer: answer,
+      correctAnswer: firstName,
     };
   }
 

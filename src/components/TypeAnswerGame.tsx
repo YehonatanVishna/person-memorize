@@ -5,7 +5,7 @@ import type { RoundEvaluation, RoundStatus } from '../utils/gameEngine';
 
 interface TypeAnswerGameProps {
   person: Person;
-  mode: 'photo-to-name' | 'photo-to-id-type';
+  mode: 'photo-to-name' | 'photo-to-first-name' | 'photo-to-id-type';
   status: RoundStatus;
   lastEvaluation: RoundEvaluation | null;
   onSubmit: (answer: string) => void;
@@ -47,6 +47,7 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
   };
 
   const isNumericMode = mode === 'photo-to-id-type';
+  const isFirstNameMode = mode === 'photo-to-first-name';
 
   return (
     <div className="max-w-md mx-auto w-full" dir="rtl">
@@ -72,6 +73,8 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
             <label className="block text-xs font-semibold text-slate-400 mb-1.5 sm:mb-2 text-right">
               {isNumericMode
                 ? 'מה מספר תעודת הזהות של האדם בתמונה?'
+                : isFirstNameMode
+                ? 'מה שמו הפרטי בלבד של האדם בתמונה?'
                 : 'מה שמו המלא של האדם בתמונה?'}
             </label>
             <input
@@ -83,7 +86,11 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
               disabled={status === 'feedback'}
               onChange={(e) => setInputVal(e.target.value)}
               placeholder={
-                isNumericMode ? 'הקלד כאן תעודת זהות...' : 'הקלד כאן את השם...'
+                isNumericMode
+                  ? 'הקלד כאן תעודת זהות...'
+                  : isFirstNameMode
+                  ? 'הקלד כאן שם פרטי בלבד...'
+                  : 'הקלד כאן את השם...'
               }
               autoComplete="off"
               autoCorrect="off"
@@ -137,7 +144,11 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
                 </div>
                 {!lastEvaluation.isCorrect && (
                   <div className="text-xs mt-1 text-rose-300">
-                    {isNumericMode ? 'תעודת הזהות הנכונה היא: ' : 'השם הנכון הוא: '}
+                    {isNumericMode
+                      ? 'תעודת הזהות הנכונה היא: '
+                      : isFirstNameMode
+                      ? 'השם הפרטי הנכון הוא: '
+                      : 'השם הנכון הוא: '}
                     <span
                       dir={isNumericMode ? 'ltr' : 'auto'}
                       className="font-bold text-white text-sm underline decoration-rose-500 font-mono"

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { checkNameMatch, containsHebrew, levenshteinDistance, normalizeText } from './hebrew';
+import {
+  checkFirstNameMatch,
+  checkNameMatch,
+  containsHebrew,
+  getFirstName,
+  levenshteinDistance,
+  normalizeText,
+} from './hebrew';
 
 describe('Hebrew and Text Normalization', () => {
   it('strips Hebrew niqqud and vowel points', () => {
@@ -55,5 +62,23 @@ describe('Hebrew and Text Normalization', () => {
     expect(containsHebrew('דניאל')).toBe(true);
     expect(containsHebrew('Daniel')).toBe(false);
     expect(containsHebrew('John Doe (ישראל)')).toBe(true);
+  });
+
+  it('extracts and matches first name only accurately', () => {
+    expect(getFirstName('  ישראל ישראלי  ')).toBe('ישראל');
+    expect(getFirstName('נועה לוי כהן')).toBe('נועה');
+    expect(getFirstName('דניאל')).toBe('דניאל');
+    expect(getFirstName('')).toBe('');
+
+    const exactFirst = checkFirstNameMatch('ישראל', 'ישראל ישראלי', false);
+    expect(exactFirst.isMatch).toBe(true);
+    expect(exactFirst.isTypo).toBe(false);
+
+    const typoFirst = checkFirstNameMatch('ישרעל', 'ישראל ישראלי', true);
+    expect(typoFirst.isMatch).toBe(true);
+    expect(typoFirst.isTypo).toBe(true);
+
+    const fullInsteadOfFirst = checkFirstNameMatch('ישראל ישראלי', 'ישראל ישראלי', true);
+    expect(fullInsteadOfFirst.isMatch).toBe(false);
   });
 });

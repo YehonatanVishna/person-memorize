@@ -163,10 +163,12 @@ export function useGameEngine(): UseGameEngineReturn {
 
   const retryMistakes = useCallback(() => {
     if (!summary || summary.mistakes.length === 0) return;
-    const missedRecords: QuestionRecord[] = summary.mistakes.map((m) => ({
-      person: m.person,
-      mode: m.mode,
-    }));
+    const missedRecords: QuestionRecord[] = summary.mistakes
+      .filter((m): m is MistakeRecord & { mode: ConcreteGameMode } => m.mode !== 'flashcards')
+      .map((m) => ({
+        person: m.person,
+        mode: m.mode,
+      }));
     startGame(mode, pool, settings, missedRecords);
   }, [summary, mode, pool, settings, startGame]);
 
@@ -182,7 +184,11 @@ export function useGameEngine(): UseGameEngineReturn {
 
   const currentRecord = queue[currentIndex] || null;
   const currentPerson = currentRecord ? currentRecord.person : null;
-  const currentMode = currentRecord ? currentRecord.mode : (mode === 'mix' ? 'photo-to-name' : mode);
+  const currentMode = currentRecord
+    ? currentRecord.mode
+    : mode === 'mix' || mode === 'flashcards'
+    ? 'photo-to-name'
+    : mode;
   const totalQuestions = queue.length;
   const progressPercentage = totalQuestions > 0 ? Math.round(((currentIndex + 1) / totalQuestions) * 100) : 0;
 

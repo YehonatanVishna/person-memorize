@@ -21,10 +21,12 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
   streak,
   onExit,
 }) => {
-  const getSpecificTitle = (m: ConcreteGameMode) => {
+  const getSpecificTitle = (m: ConcreteGameMode | 'flashcards') => {
     switch (m) {
       case 'photo-to-name':
-        return 'זהה את השם';
+        return 'זהה את השם המלא';
+      case 'photo-to-first-name':
+        return 'זהה את השם הפרטי';
       case 'name-to-photo':
         return 'בחר תמונה לפי שם';
       case 'name-to-id':
@@ -37,6 +39,8 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
         return 'בחר שם מת"ז';
       case 'photo-to-id-type':
         return 'הקלד ת"ז מתמונה';
+      case 'flashcards':
+        return 'כרטיסיות זיכרון';
     }
   };
 
@@ -63,7 +67,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
             </span>
           )}
           <span className="text-xs sm:text-sm font-bold text-slate-200 tracking-wide truncate text-center">
-            {mode === 'mix' && currentMode ? getSpecificTitle(currentMode) : getSpecificTitle(mode as ConcreteGameMode)}
+            {mode === 'mix' && currentMode ? getSpecificTitle(currentMode) : getSpecificTitle(mode as ConcreteGameMode | 'flashcards')}
           </span>
         </div>
 

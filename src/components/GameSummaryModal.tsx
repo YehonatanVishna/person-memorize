@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
 import { Trophy, Clock, Flame, RotateCcw, AlertTriangle, ArrowRight, CheckCircle2 } from 'lucide-react';
-import type { ConcreteGameMode, GameSummary } from '../types/person';
+import type { GameSummary, MistakeMode } from '../types/person';
 import { triggerCompletionConfetti } from '../utils/confetti';
 
-const getModeBadge = (m: ConcreteGameMode) => {
+const getModeBadge = (m: MistakeMode) => {
   switch (m) {
     case 'photo-to-name':
-      return 'תמונה ← שם';
+      return 'תמונה ← שם מלא';
+    case 'photo-to-first-name':
+      return 'תמונה ← שם פרטי';
     case 'name-to-photo':
       return 'שם ← תמונה';
     case 'name-to-id':
@@ -19,6 +21,8 @@ const getModeBadge = (m: ConcreteGameMode) => {
       return 'ת"ז ← שם';
     case 'photo-to-id-type':
       return 'הקלדת ת"ז';
+    case 'flashcards':
+      return 'כרטיסיות';
   }
 };
 

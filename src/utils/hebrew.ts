@@ -62,6 +62,23 @@ export interface MatchResult {
 }
 
 /**
+ * Extracts the first name (first whitespace-separated token) from a full name.
+ */
+export function getFirstName(fullName: string): string {
+  if (!fullName) return '';
+  const trimmed = fullName.trim();
+  return trimmed.split(/\s+/)[0] || '';
+}
+
+/**
+ * Compares user input against the target's first name only.
+ */
+export function checkFirstNameMatch(input: string, targetFullName: string, allowTypo: boolean = false): MatchResult {
+  const firstName = getFirstName(targetFullName);
+  return checkNameMatch(input, firstName, allowTypo);
+}
+
+/**
  * Compares user input against the target name.
  * Supports:
  * - Exact normalized match
