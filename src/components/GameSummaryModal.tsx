@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
-import { Trophy, Clock, Flame, RotateCcw, AlertTriangle, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Trophy, Clock, Flame, RotateCcw, AlertTriangle, ArrowRight, CheckCircle2, Star } from 'lucide-react';
 import type { GameSummary, MistakeMode } from '../types/person';
 import { triggerCompletionConfetti } from '../utils/confetti';
+import { playAchievementSound } from '../utils/sound';
+import { getPlayerProfile } from '../services/playerProgress';
 
 const getModeBadge = (m: MistakeMode) => {
   switch (m) {
@@ -39,9 +41,12 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
   onRetryMistakes,
   onGoHome,
 }) => {
+  const profile = getPlayerProfile();
+
   useEffect(() => {
     if (summary.scorePercentage >= 80) {
       triggerCompletionConfetti();
+      playAchievementSound();
     }
   }, [summary.scorePercentage]);
 
@@ -70,6 +75,7 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
   };
 
   const scoreTheme = getScoreColor();
+  const xpEarned = summary.xpEarned ?? 0;
 
   return (
     <div className="max-w-2xl mx-auto w-full py-2 sm:py-4" dir="rtl">
@@ -78,16 +84,24 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
         <div className="absolute top-0 right-1/2 translate-x-1/2 w-64 h-32 bg-indigo-500/10 blur-3xl pointer-events-none rounded-full"></div>
 
         {/* Header / Score Banner */}
-        <div className="text-center mb-6 sm:mb-8 relative z-10 flex flex-col items-center">
+        <div className="text-center mb-5 sm:mb-7 relative z-10 flex flex-col items-center">
           <div className="inline-flex p-3 sm:p-3.5 rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 text-indigo-400 mb-2 sm:mb-3 shadow-inner">
             <Trophy className="w-8 h-8 sm:w-9 sm:h-9" />
           </div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-1">
             {getScoreHeadline()}
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm mb-4">
+          <p className="text-slate-400 text-xs sm:text-sm mb-3">
             סיימת את סבב התרגול בהצלחה
           </p>
+
+          {/* XP Gained Badge */}
+          {xpEarned > 0 && (
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-indigo-500/20 to-emerald-500/20 border border-amber-500/30 text-amber-300 font-extrabold text-xs sm:text-sm animate-pop shadow-sm mb-3">
+              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+              <span>+{xpEarned} XP נצברו בסבב זה!</span>
+            </div>
+          )}
 
           {/* SVG Score Circle */}
           <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center my-1 animate-pop">
@@ -125,11 +139,34 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
           </div>
         </div>
 
+        {/* Player Level Progress Card */}
+        <div className="mb-5 sm:mb-6 p-4 rounded-2xl bg-gradient-to-r from-slate-950 via-indigo-950/40 to-slate-950 border border-indigo-500/30 shadow-inner">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold text-xs">
+                {profile.level}
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-white">
+                דרגה: {profile.levelTitle}
+              </span>
+            </div>
+            <span className="text-xs font-mono font-bold text-indigo-300">
+              {profile.totalXP} XP
+            </span>
+          </div>
+          <div className="w-full h-2 rounded-full bg-slate-900 border border-slate-800 overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-indigo-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-700"
+              style={{ width: `${profile.progressPercent}%` }}
+            />
+          </div>
+        </div>
+
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5 sm:mb-8">
           <div className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-950 border border-slate-800 text-center">
             <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 mx-auto mb-1" />
-            <div className="text-base sm:text-xl font-bold text-white">
+            <div className="text-base sm:text-xl font-bold text-white font-mono">
               {summary.correctCount}/{summary.totalQuestions}
             </div>
             <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium">תשובות נכונות</div>
@@ -137,7 +174,7 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
 
           <div className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-950 border border-slate-800 text-center">
             <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 mx-auto mb-1" />
-            <div className="text-base sm:text-xl font-bold text-white">
+            <div className="text-base sm:text-xl font-bold text-white font-mono">
               {summary.highestStreak}
             </div>
             <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium">רצף שיא</div>

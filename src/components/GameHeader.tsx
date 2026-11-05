@@ -1,6 +1,7 @@
-import React from 'react';
-import { ArrowRight, Flame, Trophy, Shuffle } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, Flame, Trophy, Shuffle, Volume2, VolumeX } from 'lucide-react';
 import type { ConcreteGameMode, GameMode } from '../types/person';
+import { isSoundMuted, toggleSound } from '../utils/sound';
 
 interface GameHeaderProps {
   mode: GameMode;
@@ -21,6 +22,13 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
   streak,
   onExit,
 }) => {
+  const [muted, setMuted] = useState(isSoundMuted());
+
+  const handleToggleSound = () => {
+    const nextMuted = toggleSound();
+    setMuted(nextMuted);
+  };
+
   const getSpecificTitle = (m: ConcreteGameMode | 'flashcards') => {
     switch (m) {
       case 'photo-to-name':
@@ -46,18 +54,37 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
 
   const progressPercent = Math.min(100, Math.round(((currentIndex + 1) / totalQuestions) * 100));
 
+  const getMultiplier = () => {
+    if (streak >= 10) return 'x2.5';
+    if (streak >= 5) return 'x2.0';
+    if (streak >= 3) return 'x1.5';
+    return null;
+  };
+
+  const multiplier = getMultiplier();
+
   return (
     <div className="w-full max-w-3xl mx-auto mb-6" dir="rtl">
       {/* Top row */}
-      <div className="flex items-center justify-between gap-2 sm:gap-4 mb-2.5 sm:mb-3">
-        <button
-          onClick={onExit}
-          className="flex items-center gap-1 sm:gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 active:scale-[0.96] transition-all min-h-[44px] min-w-[44px] py-2 px-3 rounded-xl hover:bg-slate-800 shrink-0"
-        >
-          <ArrowRight className="w-4 h-4 shrink-0" />
-          <span className="hidden sm:inline">חזרה לתפריט</span>
-          <span className="sm:hidden">חזרה</span>
-        </button>
+      <div className="flex items-center justify-between gap-1.5 sm:gap-4 mb-2.5 sm:mb-3">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={onExit}
+            className="flex items-center gap-1 sm:gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 active:scale-[0.96] transition-all min-h-[42px] min-w-[42px] py-2 px-2.5 sm:px-3 rounded-xl hover:bg-slate-800 shrink-0"
+            title="חזרה לתפריט הראשי"
+          >
+            <ArrowRight className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">חזרה</span>
+          </button>
+
+          <button
+            onClick={handleToggleSound}
+            className="p-2 min-h-[42px] min-w-[42px] rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center shrink-0"
+            title={muted ? 'הפעל צלילים' : 'השתק צלילים'}
+          >
+            {muted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
+          </button>
+        </div>
 
         <div className="flex items-center gap-1.5 min-w-0 justify-center">
           {mode === 'mix' && (
@@ -72,17 +99,26 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
         </div>
 
         {/* Stats: Score & Streak */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {streak > 1 && (
-            <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold animate-pop shadow-sm">
-              <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
-              <span>{streak}<span className="hidden sm:inline"> ברצף</span></span>
+            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-bold animate-pop shadow-sm ${
+              streak >= 5
+                ? 'bg-gradient-to-r from-amber-500/25 to-rose-500/25 border-amber-500/50 text-amber-300 shadow-amber-500/20'
+                : 'bg-amber-500/15 border-amber-500/30 text-amber-400'
+            }`}>
+              <Flame className={`w-3.5 h-3.5 shrink-0 ${streak >= 5 ? 'text-rose-400 fill-rose-400 animate-pulse' : 'text-amber-500 fill-amber-500'}`} />
+              <span>{streak}</span>
+              {multiplier && (
+                <span className="text-[10px] px-1 py-0.2 rounded bg-amber-400/20 text-amber-200 font-mono">
+                  {multiplier}
+                </span>
+              )}
             </div>
           )}
 
           <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold shadow-sm">
             <Trophy className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-            <span>{score}<span className="hidden sm:inline"> נקודות</span></span>
+            <span>{score}</span>
           </div>
         </div>
       </div>

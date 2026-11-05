@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 import type { GameSettings, GameSummary, MistakeRecord, Person } from '../types/person';
 import { shuffle } from '../utils/gameEngine';
 import { triggerCorrectAnswerConfetti } from '../utils/confetti';
+import { playCardFlipSound, playCorrectSound, playWrongSound } from '../utils/sound';
+import { recordSessionCompletion } from '../services/playerProgress';
 
 export type FlashcardsStatus = 'idle' | 'active' | 'completed';
 export type FlashcardFrontSide = 'photo' | 'details';
@@ -17,6 +19,7 @@ export interface UseFlashcardsEngineReturn {
   score: number;
   streak: number;
   highestStreak: number;
+  earnedXP: number;
   summary: GameSummary | null;
   startFlashcards: (pool: Person[], settings: GameSettings, customCards?: Person[]) => void;
   flipCard: () => void;
@@ -43,6 +46,7 @@ export function useFlashcardsEngine(): UseFlashcardsEngineReturn {
   const [score, setScore] = useState<number>(0);
   const [streak, setStreak] = useState<number>(0);
   const [highestStreak, setHighestStreak] = useState<number>(0);
+  const [earnedXP, setEarnedXP] = useState<number>(0);
   const [mistakes, setMistakes] = useState<MistakeRecord[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [summary, setSummary] = useState<GameSummary | null>(null);
@@ -72,6 +76,7 @@ export function useFlashcardsEngine(): UseFlashcardsEngineReturn {
       setScore(0);
       setStreak(0);
       setHighestStreak(0);
+      setEarnedXP(0);
       setMistakes([]);
       setSummary(null);
       setStartTime(Date.now());
@@ -82,6 +87,7 @@ export function useFlashcardsEngine(): UseFlashcardsEngineReturn {
 
   const flipCard = useCallback(() => {
     if (status !== 'active') return;
+    playCardFlipSound();
     setIsFlipped((prev) => !prev);
   }, [status]);
 
@@ -98,6 +104,9 @@ export function useFlashcardsEngine(): UseFlashcardsEngineReturn {
       const nextScore = known ? score + 1 : score;
       const nextStreak = known ? streak + 1 : 0;
       const nextHighestStreak = Math.max(highestStreak, nextStreak);
+      const cardPoints = known ? 40 : 10;
+      const nextEarnedXP = earnedXP + cardPoints;
+
       const nextMistakes = known
         ? mistakes
         : [
@@ -112,11 +121,15 @@ export function useFlashcardsEngine(): UseFlashcardsEngineReturn {
 
       if (known) {
         triggerCorrectAnswerConfetti();
+        playCorrectSound(nextStreak);
+      } else {
+        playWrongSound();
       }
 
       setScore(nextScore);
       setStreak(nextStreak);
       setHighestStreak(nextHighestStreak);
+      setEarnedXP(nextEarnedXP);
       setMistakes(nextMistakes);
 
       const nextIdx = currentIndex + 1;
@@ -124,6 +137,17 @@ export function useFlashcardsEngine(): UseFlashcardsEngineReturn {
         const now = Date.now();
         const durationSeconds = startTime ? Math.round((now - startTime) / 1000) : 0;
         const finalScorePercentage = Math.round((nextScore / cards.length) * 100);
+
+        const completionBonus = cards.length >= 4 ? 30 : 0;
+        const finalSessionXP = nextEarnedXP + completionBonus;
+
+        recordSessionCompletion({
+          xpEarned: finalSessionXP,
+          correctCount: nextScore,
+          totalQuestions: cards.length,
+          highestStreak: nextHighestStreak,
+          mode: 'flashcards',
+        });
 
         setSummary({
           mode: 'flashcards',
@@ -134,6 +158,7 @@ export function useFlashcardsEngine(): UseFlashcardsEngineReturn {
           highestStreak: nextHighestStreak,
           mistakes: nextMistakes,
           durationSeconds,
+          xpEarned: finalSessionXP,
         });
         setStatus('completed');
       } else {
@@ -141,7 +166,7 @@ export function useFlashcardsEngine(): UseFlashcardsEngineReturn {
         setIsFlipped(false);
       }
     },
-    [status, cards, currentIndex, score, streak, highestStreak, mistakes, startTime]
+    [status, cards, currentIndex, score, streak, highestStreak, earnedXP, mistakes, startTime]
   );
 
   const retryMistakes = useCallback(() => {
@@ -159,6 +184,7 @@ export function useFlashcardsEngine(): UseFlashcardsEngineReturn {
     setScore(0);
     setStreak(0);
     setHighestStreak(0);
+    setEarnedXP(0);
     setMistakes([]);
   }, []);
 
@@ -177,6 +203,7 @@ export function useFlashcardsEngine(): UseFlashcardsEngineReturn {
     score,
     streak,
     highestStreak,
+    earnedXP,
     summary,
     startFlashcards,
     flipCard,

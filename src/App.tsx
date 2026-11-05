@@ -9,6 +9,7 @@ import { FlashcardsGame } from './components/FlashcardsGame';
 import { GameSummaryModal } from './components/GameSummaryModal';
 import { UploadModal } from './components/UploadModal';
 import { PeopleDirectoryModal } from './components/PeopleDirectoryModal';
+import { PlayerProfileModal } from './components/PlayerProfileModal';
 import { useGameEngine } from './hooks/useGameEngine';
 import { useFlashcardsEngine } from './hooks/useFlashcardsEngine';
 import {
@@ -29,6 +30,7 @@ export function App() {
   const [isInitializing, setIsInitializing] = useState(true);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isDirectoryOpen, setIsDirectoryOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [settings, setSettings] = useState<GameSettings>({
     questionCount: -1,
     allowTypo: true,
@@ -45,6 +47,8 @@ export function App() {
     totalQuestions,
     score,
     streak,
+    lifelines,
+    activeHint,
     lastEvaluation,
     summary,
     startGame,
@@ -52,6 +56,8 @@ export function App() {
     nextQuestion,
     retryMistakes,
     resetGame,
+    useFiftyFifty,
+    useHint,
   } = useGameEngine();
 
   const {
@@ -172,6 +178,7 @@ export function App() {
         onOpenDirectory={() => setIsDirectoryOpen(true)}
         onLoadDemo={handleLoadDemo}
         onGoHome={handleResetAll}
+        onOpenProfile={() => setIsProfileOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -236,6 +243,9 @@ export function App() {
                 mode={currentMode}
                 status={status}
                 lastEvaluation={lastEvaluation}
+                lifelines={lifelines}
+                activeHint={activeHint}
+                onHint={useHint}
                 onSubmit={submitAnswer}
                 onNext={nextQuestion}
               />
@@ -249,6 +259,10 @@ export function App() {
                 mode={currentMode}
                 status={status}
                 lastEvaluation={lastEvaluation}
+                lifelines={lifelines}
+                activeHint={activeHint}
+                onFiftyFifty={useFiftyFifty}
+                onHint={useHint}
                 onSubmit={submitAnswer}
                 onNext={nextQuestion}
               />
@@ -262,6 +276,10 @@ export function App() {
                 mode={currentMode}
                 status={status}
                 lastEvaluation={lastEvaluation}
+                lifelines={lifelines}
+                activeHint={activeHint}
+                onFiftyFifty={useFiftyFifty}
+                onHint={useHint}
                 onSubmit={submitAnswer}
                 onNext={nextQuestion}
               />
@@ -321,6 +339,11 @@ export function App() {
         onDeletePerson={handleDeletePerson}
         onUpdatePerson={handleUpdatePerson}
         onClearAll={handleClearAll}
+      />
+
+      <PlayerProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
       />
     </div>
   );

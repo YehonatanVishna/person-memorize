@@ -1,13 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, XCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, ArrowLeft, Star, Zap, Flame } from 'lucide-react';
 import type { Person } from '../types/person';
 import type { RoundEvaluation, RoundStatus } from '../utils/gameEngine';
+import { LifelineBar } from './LifelineBar';
 
 interface TypeAnswerGameProps {
   person: Person;
   mode: 'photo-to-name' | 'photo-to-first-name' | 'photo-to-id-type';
   status: RoundStatus;
   lastEvaluation: RoundEvaluation | null;
+  lifelines?: { fiftyFifty: number; hint: number };
+  activeHint?: string | null;
+  onHint?: () => void;
   onSubmit: (answer: string) => void;
   onNext: () => void;
 }
@@ -17,6 +21,9 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
   mode,
   status,
   lastEvaluation,
+  lifelines,
+  activeHint,
+  onHint,
   onSubmit,
   onNext,
 }) => {
@@ -29,6 +36,21 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
       inputRef.current.focus();
     }
   }, [person.id, mode]);
+
+  // Keyboard shortcut: any key during feedback advances immediately
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (status === 'feedback') {
+        e.preventDefault();
+        e.stopPropagation();
+        onNext();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [status, onNext]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +77,7 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
   return (
     <div className="max-w-md mx-auto w-full" dir="rtl">
       <div
-        className={`bg-slate-900/90 backdrop-blur-md border rounded-3xl p-5 sm:p-8 shadow-2xl flex flex-col items-center transition-all duration-300 ${
+        className={`bg-slate-900/90 backdrop-blur-md border rounded-3xl p-5 sm:p-8 shadow-2xl flex flex-col items-center transition-all duration-300 relative ${
           isFeedback
             ? isCorrect
               ? 'border-emerald-500/50 shadow-emerald-500/10'
@@ -63,10 +85,30 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
             : 'border-slate-800'
         }`}
       >
-        {/* Photo Container - compact & responsive for virtual keyboards */}
-        <div className="relative mb-4 sm:mb-6 group">
+        {/* Floating Reward Pill on Correct Answer */}
+        {isFeedback && isCorrect && (
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 animate-pop flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/25">
+            <Star className="w-3.5 h-3.5 fill-white" />
+            <span>+{lastEvaluation.pointsAwarded || 100} XP</span>
+            {lastEvaluation.speedBonus && lastEvaluation.speedBonus > 0 && (
+              <span className="flex items-center gap-0.5 text-amber-200">
+                <Zap className="w-3 h-3 fill-amber-300" />
+                <span>מהירות!</span>
+              </span>
+            )}
+            {lastEvaluation.streakMultiplier && lastEvaluation.streakMultiplier > 1 && (
+              <span className="flex items-center gap-0.5 text-orange-200">
+                <Flame className="w-3 h-3 fill-orange-300" />
+                <span>x{lastEvaluation.streakMultiplier}</span>
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Photo Container */}
+        <div className="relative mb-3 sm:mb-5 group">
           <div
-            className={`w-40 h-40 sm:w-56 sm:h-56 max-h-[26dvh] max-w-[26dvh] aspect-square rounded-2xl overflow-hidden border-2 bg-slate-950 shadow-inner flex items-center justify-center transition-all ${
+            className={`w-36 h-36 sm:w-52 sm:h-52 max-h-[26dvh] max-w-[26dvh] aspect-square rounded-2xl overflow-hidden border-2 bg-slate-950 shadow-inner flex items-center justify-center transition-all ${
               isFeedback
                 ? isCorrect
                   ? 'border-emerald-500 ring-4 ring-emerald-500/20'
@@ -86,10 +128,23 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
           </div>
         </div>
 
+        {/* Lifeline Bar (Hint only in typing mode) */}
+        {lifelines && onHint && (
+          <LifelineBar
+            allowFiftyFifty={false}
+            fiftyFiftyRemaining={0}
+            hintRemaining={lifelines.hint}
+            activeHint={activeHint || null}
+            onFiftyFifty={() => {}}
+            onHint={onHint}
+            disabled={status !== 'pending'}
+          />
+        )}
+
         {/* Input Form */}
         <form onSubmit={handleSubmit} className="w-full">
-          <div className="mb-3.5 sm:mb-4">
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5 sm:mb-2 text-right">
+          <div className="mb-3 sm:mb-4">
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5 text-right">
               {isNumericMode
                 ? 'מה מספר תעודת הזהות של האדם בתמונה?'
                 : isFirstNameMode
@@ -102,7 +157,7 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
               dir={isNumericMode ? 'ltr' : 'auto'}
               inputMode={isNumericMode ? 'numeric' : 'text'}
               value={inputVal}
-              disabled={status === 'feedback'}
+              readOnly={status === 'feedback'}
               onChange={(e) => setInputVal(e.target.value)}
               placeholder={
                 isNumericMode
@@ -141,78 +196,67 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
                   : 'bg-rose-950/30 border-rose-500/40 text-rose-200'
               }`}
             >
-              {lastEvaluation.isCorrect ? (
-                lastEvaluation.isTypo ? (
-                  <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <div className="shrink-0 mt-0.5">
+                {lastEvaluation.isCorrect ? (
+                  lastEvaluation.isTypo ? (
+                    <AlertCircle className="w-5 h-5 text-amber-400" />
+                  ) : (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  )
                 ) : (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                )
-              ) : (
-                <XCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-              )}
+                  <XCircle className="w-5 h-5 text-rose-400" />
+                )}
+              </div>
 
-              <div className="text-right">
-                <div className="font-bold text-sm">
-                  {lastEvaluation.isCorrect
-                    ? lastEvaluation.isTypo
-                      ? 'נכון! (זוהתה שגיאת הקלדה קלה)'
-                      : isNumericMode
-                      ? 'כל הכבוד! תעודת זהות מדויקת'
-                      : 'כל הכבוד! תשובה מדויקת'
-                    : 'תשובה שגויה'}
-                </div>
-                {!lastEvaluation.isCorrect && (
-                  <div className="text-xs mt-1 text-rose-300">
-                    {isNumericMode
-                      ? 'תעודת הזהות הנכונה היא: '
-                      : isFirstNameMode
-                      ? 'השם הפרטי הנכון הוא: '
-                      : 'השם הנכון הוא: '}
-                    <span
-                      dir={isNumericMode ? 'ltr' : 'auto'}
-                      className="font-bold text-white text-sm underline decoration-rose-500 font-mono"
-                    >
-                      {lastEvaluation.correctAnswer}
-                    </span>
+              <div className="text-right text-xs sm:text-sm flex-1">
+                {lastEvaluation.isCorrect ? (
+                  lastEvaluation.isTypo ? (
+                    <div>
+                      <p className="font-bold mb-0.5">נכון! (עם שגיאת הקלדה קלה)</p>
+                      <p className="opacity-90">הכתיב המדויק הוא: <strong className="font-semibold text-white">{lastEvaluation.correctAnswer}</strong></p>
+                    </div>
+                  ) : (
+                    <p className="font-bold">כל הכבוד! תשובה מדויקת לחלוטין 🎯</p>
+                  )
+                ) : (
+                  <div>
+                    <p className="font-bold mb-0.5">טעות</p>
+                    <p className="opacity-90">
+                      התשובה הנכונה: <strong className="font-semibold text-white" dir={isNumericMode ? 'ltr' : 'auto'}>{lastEvaluation.correctAnswer}</strong>
+                    </p>
                   </div>
                 )}
               </div>
             </div>
           )}
 
-          {/* Controls */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            {status === 'pending' ? (
-              <>
-                <button
-                  type="submit"
-                  disabled={!inputVal.trim()}
-                  className="flex-1 min-h-[48px] py-2.5 sm:py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 ring-1 ring-white/15"
-                >
-                  <span>בדוק תשובה</span>
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSkip}
-                  className="min-h-[48px] py-2.5 sm:py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-750 active:scale-[0.98] text-slate-400 hover:text-slate-200 text-sm font-medium transition-all"
-                >
-                  לא יודע
-                </button>
-              </>
-            ) : (
+          {/* Action Button */}
+          {status === 'pending' ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="submit"
+                disabled={!inputVal.trim()}
+                className="flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 active:scale-[0.98] text-white font-semibold text-sm transition-all shadow-md shadow-indigo-600/25 min-h-[46px]"
+              >
+                בדיקת תשובה
+              </button>
               <button
                 type="button"
-                onClick={onNext}
-                autoFocus
-                className="w-full min-h-[48px] py-2.5 sm:py-3 px-4 rounded-xl bg-slate-100 hover:bg-white active:scale-[0.98] text-slate-900 font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2"
+                onClick={handleSkip}
+                className="py-3 px-3.5 rounded-xl bg-slate-800/80 hover:bg-slate-750 text-slate-400 hover:text-slate-200 text-xs font-semibold active:scale-[0.98] transition-all min-h-[46px]"
               >
-                <span>המשך לשאלה הבאה</span>
-                <kbd className="kbd-badge bg-slate-300 text-slate-900 border-slate-400">Enter</kbd>
-                <ArrowLeft className="w-4 h-4" />
+                דלג / לא יודע
               </button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <button
+              type="submit"
+              className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white font-semibold text-sm transition-all shadow-md shadow-indigo-600/25 flex items-center justify-center gap-2 min-h-[46px]"
+            >
+              <span>לשאלה הבאה</span>
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+          )}
         </form>
       </div>
     </div>

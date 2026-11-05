@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { Person } from '../types/person';
 import {
+  applyFiftyFifty,
   buildQuestionQueue,
+  calculateScoreReward,
   evaluateAnswer,
   generateQuestionOptions,
   getDistractors,
+  getHintClue,
+  getNumberFromKeyEvent,
   shuffle,
 } from './gameEngine';
 
@@ -146,5 +150,137 @@ describe('Game Engine Utilities', () => {
 
     const wrongFirst = evaluateAnswer('photo-to-first-name', target, 'נועה', true);
     expect(wrongFirst.isCorrect).toBe(false);
+  });
+
+  describe('calculateScoreReward', () => {
+    it('returns zero points for incorrect answers', () => {
+      const reward = calculateScoreReward(false, 1500, 4);
+      expect(reward.points).toBe(0);
+      expect(reward.basePoints).toBe(0);
+      expect(reward.speedBonus).toBe(0);
+      expect(reward.multiplier).toBe(1);
+    });
+
+    it('calculates base points and speed bonus under 2.5s', () => {
+      const reward = calculateScoreReward(true, 1800, 0);
+      expect(reward.basePoints).toBe(100);
+      expect(reward.speedBonus).toBe(50);
+      expect(reward.multiplier).toBe(1.0);
+      expect(reward.points).toBe(150);
+    });
+
+    it('calculates medium speed bonus between 2.5s and 5s', () => {
+      const reward = calculateScoreReward(true, 3200, 0);
+      expect(reward.basePoints).toBe(100);
+      expect(reward.speedBonus).toBe(25);
+      expect(reward.multiplier).toBe(1.0);
+      expect(reward.points).toBe(125);
+    });
+
+    it('applies multipliers based on streak thresholds', () => {
+      // streak 3 -> 1.5x
+      const r3 = calculateScoreReward(true, 6000, 3);
+      expect(r3.multiplier).toBe(1.5);
+      expect(r3.points).toBe(150); // 100 * 1.5
+
+      // streak 5 -> 2.0x with speed bonus
+      const r5 = calculateScoreReward(true, 2000, 5);
+      expect(r5.multiplier).toBe(2.0);
+      expect(r5.points).toBe(300); // (100 + 50) * 2
+
+      // streak 10 -> 2.5x
+      const r10 = calculateScoreReward(true, 6000, 10);
+      expect(r10.multiplier).toBe(2.5);
+      expect(r10.points).toBe(250); // 100 * 2.5
+    });
+
+    it('reduces XP for retry mistake rounds to prevent exploits', () => {
+      const retryReward = calculateScoreReward(true, 1500, 0, true);
+      expect(retryReward.basePoints).toBe(50);
+      expect(retryReward.speedBonus).toBe(25);
+      expect(retryReward.points).toBe(75);
+    });
+  });
+
+  describe('applyFiftyFifty & getHintClue lifelines', () => {
+    it('safely reduces 4 options to 2 options including the target', () => {
+      const target = mockPeople[0];
+      const options = [mockPeople[0], mockPeople[1], mockPeople[2], mockPeople[3]];
+      const reduced = applyFiftyFifty(target, options);
+
+      expect(reduced).toHaveLength(2);
+      expect(reduced.some((p) => p.id === target.id)).toBe(true);
+      expect(reduced.some((p) => p.id !== target.id)).toBe(true);
+    });
+
+    it('handles pools with <= 2 options gracefully without crashing', () => {
+      const target = mockPeople[0];
+      const options2 = [mockPeople[0], mockPeople[1]];
+      const reduced2 = applyFiftyFifty(target, options2);
+      expect(reduced2).toHaveLength(2);
+
+      const options1 = [mockPeople[0]];
+      const reduced1 = applyFiftyFifty(target, options1);
+      expect(reduced1).toHaveLength(1);
+    });
+
+    it('generates accurate hints for all modes', () => {
+      const target: Person = {
+        id: '123456789',
+        name: 'דניאל כהן',
+        photoBlob: new Blob(),
+        photoUrl: 'blob:test',
+      };
+
+      expect(getHintClue('photo-to-first-name', target)).toContain('ד');
+      expect(getHintClue('photo-to-name', target)).toContain('ד');
+      expect(getHintClue('name-to-id', target)).toContain('123');
+      expect(getHintClue('photo-to-id-type', target)).toContain('123');
+      expect(getHintClue('name-to-photo', target)).toContain('דניאל');
+    });
+  });
+
+  describe('getNumberFromKeyEvent', () => {
+    it('extracts number from standard direct key', () => {
+      expect(getNumberFromKeyEvent({ key: '1' })).toBe(1);
+      expect(getNumberFromKeyEvent({ key: '4' })).toBe(4);
+      expect(getNumberFromKeyEvent({ key: '9' })).toBe(9);
+    });
+
+    it('extracts number from macOS Hebrew layout where key is a symbol/nikkud but code is DigitX', () => {
+      // On Mac with Hebrew keyboard: key 1 -> '!', key 2 -> '@', key 3 -> '#', key 4 -> '$'
+      expect(getNumberFromKeyEvent({ key: '!', code: 'Digit1' })).toBe(1);
+      expect(getNumberFromKeyEvent({ key: '@', code: 'Digit2' })).toBe(2);
+      expect(getNumberFromKeyEvent({ key: '#', code: 'Digit3' })).toBe(3);
+      expect(getNumberFromKeyEvent({ key: '$', code: 'Digit4' })).toBe(4);
+    });
+
+    it('extracts number from Numpad even when NumLock is off', () => {
+      // Numpad with NumLock off: key is 'End', 'Down', etc.
+      expect(getNumberFromKeyEvent({ key: 'End', code: 'Numpad1' })).toBe(1);
+      expect(getNumberFromKeyEvent({ key: 'Down', code: 'Numpad2' })).toBe(2);
+      expect(getNumberFromKeyEvent({ key: 'PageDown', code: 'Numpad3' })).toBe(3);
+      expect(getNumberFromKeyEvent({ key: 'Left', code: 'Numpad4' })).toBe(4);
+    });
+
+    it('extracts number from legacy keyCode fallback', () => {
+      expect(getNumberFromKeyEvent({ keyCode: 49 })).toBe(1); // '1'
+      expect(getNumberFromKeyEvent({ keyCode: 52 })).toBe(4); // '4'
+      expect(getNumberFromKeyEvent({ keyCode: 97 })).toBe(1); // Numpad 1
+      expect(getNumberFromKeyEvent({ keyCode: 100 })).toBe(4); // Numpad 4
+    });
+
+    it('extracts number from Hebrew letter shortcuts א, ב, ג, ד', () => {
+      expect(getNumberFromKeyEvent({ key: 'א' })).toBe(1);
+      expect(getNumberFromKeyEvent({ key: 'ב' })).toBe(2);
+      expect(getNumberFromKeyEvent({ key: 'ג' })).toBe(3);
+      expect(getNumberFromKeyEvent({ key: 'ד' })).toBe(4);
+    });
+
+    it('returns null for non-digit keys', () => {
+      expect(getNumberFromKeyEvent({ key: 'Enter', code: 'Enter' })).toBeNull();
+      expect(getNumberFromKeyEvent({ key: 'a', code: 'KeyA' })).toBeNull();
+      expect(getNumberFromKeyEvent({ key: '0', code: 'Digit0' })).toBeNull();
+    });
   });
 });

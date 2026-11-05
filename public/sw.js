@@ -1,4 +1,4 @@
-const CACHE_NAME = 'person-memorize-v1';
+const CACHE_NAME = 'person-memorize-v2';
 
 const STATIC_ASSETS = [
   '/',
@@ -12,17 +12,17 @@ const STATIC_ASSETS = [
   '/pwa-maskable-512x512.png',
 ];
 
-// Install Event: pre-cache core shell
+// Install Event: pre-cache core shell and activate immediately
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches
       .open(CACHE_NAME)
       .then((cache) => cache.addAll(STATIC_ASSETS))
-      .then(() => self.skipWaiting())
   );
 });
 
-// Activate Event: purge stale caches and claim clients
+// Activate Event: purge stale caches and claim clients immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
@@ -51,6 +51,12 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
 
+  // In development / local testing: Always bypass cache so fresh code is immediately executed
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    event.respondWith(fetch(request));
+    return;
+  }
+
   // For HTML navigation requests: Network-first with cache fallback
   if (request.mode === 'navigate') {
     event.respondWith(
@@ -71,7 +77,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For hashed static assets (/assets/*) or same-origin static files: Cache-first
+  // For hashed static assets (/assets/*) or same-origin static files: Cache-first in production
   if (url.origin === self.location.origin) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {

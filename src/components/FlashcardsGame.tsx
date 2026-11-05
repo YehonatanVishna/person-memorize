@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { Check, X, RotateCw, ArrowLeftRight, Eye, CreditCard, User, Sparkles } from 'lucide-react';
 import type { Person } from '../types/person';
 import type { FlashcardFrontSide } from '../hooks/useFlashcardsEngine';
+import { getNumberFromKeyEvent } from '../utils/gameEngine';
 
 interface FlashcardsGameProps {
   person: Person;
@@ -20,34 +21,87 @@ export const FlashcardsGame: React.FC<FlashcardsGameProps> = ({
   onToggleFrontSide,
   onGrade,
 }) => {
+  const keyCaptureRef = useRef<HTMLInputElement>(null);
+
+  // Keep a hidden read-only <input> focused so browser extensions like Vimium
+  // automatically enter InsertMode and pass 1/2/Space/Enter directly to the page.
+  useLayoutEffect(() => {
+    keyCaptureRef.current?.focus({ preventScroll: true });
+  }, [person.id, isFlipped]);
+
   // Keyboard shortcuts: Space/Enter to flip, 1/2 to grade once flipped
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't capture shortcuts if an input/button has explicit focus
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.defaultPrevented || e.repeat) return;
+      // Don't capture shortcuts if another input/textarea has explicit focus
+      if (
+        (e.target instanceof HTMLInputElement && e.target !== keyCaptureRef.current) ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
 
-      if (e.key === ' ' || e.key === 'Enter') {
+      if (e.key === ' ' || e.key === 'Enter' || e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter') {
         e.preventDefault();
+        e.stopPropagation();
         onFlip();
       } else if (isFlipped) {
-        if (e.key === '1' || e.key === 'ArrowRight') {
+        const num = getNumberFromKeyEvent(e);
+        if (num === 1 || e.key === '1' || e.key === 'ArrowRight') {
           e.preventDefault();
+          e.stopPropagation();
           onGrade(true);
-        } else if (e.key === '2' || e.key === 'ArrowLeft') {
+        } else if (num === 2 || e.key === '2' || e.key === 'ArrowLeft') {
           e.preventDefault();
+          e.stopPropagation();
           onGrade(false);
         }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, true);
+    window.addEventListener('keydown', handleKeyDown, false);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, true);
+      window.removeEventListener('keydown', handleKeyDown, false);
+    };
   }, [isFlipped, onFlip, onGrade]);
 
   const isFrontPhoto = frontSide === 'photo';
 
   return (
-    <div className="max-w-md mx-auto w-full" dir="rtl">
+    <div
+      className="max-w-md mx-auto w-full"
+      dir="rtl"
+      onClick={() => keyCaptureRef.current?.focus({ preventScroll: true })}
+    >
+      {/* Hidden read-only input that keeps Vimium / keyboard-nav extensions in InsertMode so 1-2 & Space keys pass through */}
+      <input
+        ref={keyCaptureRef}
+        type="text"
+        readOnly
+        inputMode="none"
+        autoComplete="off"
+        data-1p-ignore="true"
+        data-lpignore="true"
+        aria-hidden="true"
+        tabIndex={-1}
+        value=""
+        onChange={() => {}}
+        onBlur={() => {
+          requestAnimationFrame(() => {
+            if (
+              document.activeElement === document.body ||
+              document.activeElement === document.documentElement ||
+              document.activeElement === null
+            ) {
+              keyCaptureRef.current?.focus({ preventScroll: true });
+            }
+          });
+        }}
+        className="sr-only pointer-events-none"
+      />
       {/* Direction Toggle Bar */}
       <div className="flex items-center justify-between mb-3 px-1">
         <span className="text-xs text-slate-400 font-medium">כיוון כרטיסייה:</span>

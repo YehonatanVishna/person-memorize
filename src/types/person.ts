@@ -62,4 +62,6 @@ export interface GameSummary {
   highestStreak: number;
   mistakes: MistakeRecord[];
   durationSeconds: number;
+  xpEarned?: number;
+  isRetry?: boolean;
 }
