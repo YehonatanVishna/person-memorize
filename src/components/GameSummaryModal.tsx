@@ -59,23 +59,69 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
     return 'המשך לתרגל, השיפור יגיע! 💪';
   };
 
+  const radius = 58;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (summary.scorePercentage / 100) * circumference;
+
+  const getScoreColor = () => {
+    if (summary.scorePercentage >= 80) return { stroke: '#10b981', text: 'text-emerald-400' };
+    if (summary.scorePercentage >= 60) return { stroke: '#6366f1', text: 'text-indigo-400' };
+    return { stroke: '#f59e0b', text: 'text-amber-400' };
+  };
+
+  const scoreTheme = getScoreColor();
+
   return (
     <div className="max-w-2xl mx-auto w-full py-2 sm:py-4" dir="rtl">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-2xl">
+      <div className="bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
+        {/* Ambient glow */}
+        <div className="absolute top-0 right-1/2 translate-x-1/2 w-64 h-32 bg-indigo-500/10 blur-3xl pointer-events-none rounded-full"></div>
+
         {/* Header / Score Banner */}
-        <div className="text-center mb-5 sm:mb-8">
-          <div className="inline-flex p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 text-indigo-400 mb-2 sm:mb-3 shadow-inner">
-            <Trophy className="w-8 h-8 sm:w-10 sm:h-10" />
+        <div className="text-center mb-6 sm:mb-8 relative z-10 flex flex-col items-center">
+          <div className="inline-flex p-3 sm:p-3.5 rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 text-indigo-400 mb-2 sm:mb-3 shadow-inner">
+            <Trophy className="w-8 h-8 sm:w-9 sm:h-9" />
           </div>
-          <h2 className="text-xl sm:text-3xl font-extrabold text-white mb-1">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-1">
             {getScoreHeadline()}
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm">
+          <p className="text-slate-400 text-xs sm:text-sm mb-4">
             סיימת את סבב התרגול בהצלחה
           </p>
 
-          <div className="text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-300 my-2 sm:my-4 tracking-tight">
-            {summary.scorePercentage}%
+          {/* SVG Score Circle */}
+          <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center my-1 animate-pop">
+            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 140 140">
+              <circle
+                cx="70"
+                cy="70"
+                r={radius}
+                className="text-slate-800"
+                strokeWidth="10"
+                stroke="currentColor"
+                fill="transparent"
+              />
+              <circle
+                cx="70"
+                cy="70"
+                r={radius}
+                stroke={scoreTheme.stroke}
+                strokeWidth="10"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+                fill="transparent"
+                className="transition-all duration-1000 ease-out"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className={`text-3xl sm:text-4xl font-black tracking-tight font-mono ${scoreTheme.text}`}>
+                {summary.scorePercentage}%
+              </span>
+              <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase tracking-wider">
+                ציון סופי
+              </span>
+            </div>
           </div>
         </div>
 

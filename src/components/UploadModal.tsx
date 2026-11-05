@@ -24,7 +24,14 @@ export const UploadModal: React.FC<UploadModalProps> = ({
   const [replaceExisting, setReplaceExisting] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!isOpen) return null;
+  // Close on Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const handleProcessFile = async (file: File) => {
     if (!file.name.toLowerCase().endsWith('.zip')) {
@@ -77,15 +84,17 @@ export const UploadModal: React.FC<UploadModalProps> = ({
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
       dir="rtl"
     >
-      <div className="relative w-full max-w-lg bg-slate-900 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl overflow-y-auto max-h-[90dvh] pb-safe sm:pb-8">
+      <div className="relative w-full max-w-lg bg-slate-900/95 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl overflow-y-auto max-h-[90dvh] pb-safe sm:pb-8 animate-scale-in">
         {/* Mobile handle indicator */}
         <div className="w-12 h-1 bg-slate-700/60 rounded-full mx-auto mb-3 sm:hidden" />
 

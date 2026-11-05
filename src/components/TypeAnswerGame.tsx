@@ -49,12 +49,31 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
   const isNumericMode = mode === 'photo-to-id-type';
   const isFirstNameMode = mode === 'photo-to-first-name';
 
+  const isFeedback = status === 'feedback';
+  const isCorrect = lastEvaluation?.isCorrect;
+
   return (
     <div className="max-w-md mx-auto w-full" dir="rtl">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-2xl flex flex-col items-center">
+      <div
+        className={`bg-slate-900/90 backdrop-blur-md border rounded-3xl p-5 sm:p-8 shadow-2xl flex flex-col items-center transition-all duration-300 ${
+          isFeedback
+            ? isCorrect
+              ? 'border-emerald-500/50 shadow-emerald-500/10'
+              : 'border-rose-500/50 shadow-rose-500/10 animate-shake'
+            : 'border-slate-800'
+        }`}
+      >
         {/* Photo Container - compact & responsive for virtual keyboards */}
-        <div className="relative mb-3 sm:mb-6 group">
-          <div className="w-36 h-36 sm:w-56 sm:h-56 max-h-[25dvh] max-w-[25dvh] aspect-square rounded-2xl overflow-hidden border-2 border-slate-700/80 bg-slate-950 shadow-inner flex items-center justify-center">
+        <div className="relative mb-4 sm:mb-6 group">
+          <div
+            className={`w-40 h-40 sm:w-56 sm:h-56 max-h-[26dvh] max-w-[26dvh] aspect-square rounded-2xl overflow-hidden border-2 bg-slate-950 shadow-inner flex items-center justify-center transition-all ${
+              isFeedback
+                ? isCorrect
+                  ? 'border-emerald-500 ring-4 ring-emerald-500/20'
+                  : 'border-rose-500 ring-4 ring-rose-500/20'
+                : 'border-slate-700/80 group-hover:border-slate-600'
+            }`}
+          >
             {person.photoUrl ? (
               <img
                 src={person.photoUrl}
@@ -69,8 +88,8 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
 
         {/* Input Form */}
         <form onSubmit={handleSubmit} className="w-full">
-          <div className="mb-3 sm:mb-4">
-            <label className="block text-xs font-semibold text-slate-400 mb-1.5 sm:mb-2 text-right">
+          <div className="mb-3.5 sm:mb-4">
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5 sm:mb-2 text-right">
               {isNumericMode
                 ? 'מה מספר תעודת הזהות של האדם בתמונה?'
                 : isFirstNameMode
@@ -97,8 +116,8 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
               autoCapitalize="off"
               spellCheck={false}
               enterKeyHint="go"
-              className={`w-full min-h-[46px] px-4 py-2.5 sm:py-3 rounded-xl bg-slate-950 border text-slate-100 placeholder:text-slate-500 text-base font-medium focus:outline-none transition-all ${
-                isNumericMode ? 'font-mono text-center tracking-widest' : ''
+              className={`w-full min-h-[48px] px-4 py-2.5 sm:py-3 rounded-xl bg-slate-950 border text-slate-100 placeholder:text-slate-500 text-base font-medium focus:outline-none transition-all shadow-inner ${
+                isNumericMode ? 'font-mono text-center tracking-widest text-lg' : ''
               } ${
                 status === 'feedback'
                   ? lastEvaluation?.isCorrect
@@ -114,7 +133,7 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
           {/* Feedback Display */}
           {status === 'feedback' && lastEvaluation && (
             <div
-              className={`w-full p-3 sm:p-4 rounded-xl mb-3 sm:mb-4 border flex items-start gap-2.5 sm:gap-3 transition-all ${
+              className={`w-full p-3.5 sm:p-4 rounded-xl mb-3.5 sm:mb-4 border flex items-start gap-2.5 sm:gap-3 transition-all animate-pop ${
                 lastEvaluation.isCorrect
                   ? lastEvaluation.isTypo
                     ? 'bg-amber-950/30 border-amber-500/40 text-amber-200'
@@ -168,7 +187,7 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
                 <button
                   type="submit"
                   disabled={!inputVal.trim()}
-                  className="flex-1 min-h-[46px] py-2.5 sm:py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2"
+                  className="flex-1 min-h-[48px] py-2.5 sm:py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 ring-1 ring-white/15"
                 >
                   <span>בדוק תשובה</span>
                   <ArrowLeft className="w-4 h-4" />
@@ -176,7 +195,7 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
                 <button
                   type="button"
                   onClick={handleSkip}
-                  className="min-h-[46px] py-2.5 sm:py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-750 active:scale-[0.98] text-slate-400 hover:text-slate-200 text-sm font-medium transition-all"
+                  className="min-h-[48px] py-2.5 sm:py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-750 active:scale-[0.98] text-slate-400 hover:text-slate-200 text-sm font-medium transition-all"
                 >
                   לא יודע
                 </button>
@@ -186,9 +205,10 @@ export const TypeAnswerGame: React.FC<TypeAnswerGameProps> = ({
                 type="button"
                 onClick={onNext}
                 autoFocus
-                className="w-full min-h-[46px] py-2.5 sm:py-3 px-4 rounded-xl bg-slate-100 hover:bg-white active:scale-[0.98] text-slate-900 font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2"
+                className="w-full min-h-[48px] py-2.5 sm:py-3 px-4 rounded-xl bg-slate-100 hover:bg-white active:scale-[0.98] text-slate-900 font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2"
               >
                 <span>המשך לשאלה הבאה</span>
+                <kbd className="kbd-badge bg-slate-300 text-slate-900 border-slate-400">Enter</kbd>
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}

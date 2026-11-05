@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { X, Search, Trash2, Download, BookOpen, Edit3, Camera, Check, Loader2 } from 'lucide-react';
 import JSZip from 'jszip';
 import type { Person, StoredPerson } from '../types/person';
@@ -34,6 +34,18 @@ export const PeopleDirectoryModal: React.FC<PeopleDirectoryModalProps> = ({
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const editFileInputRef = useRef<HTMLInputElement>(null);
 
+  const handleCancelEdit = useCallback(() => {
+    if (editPhotoBlob && editPhotoPreview && editPhotoPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(editPhotoPreview);
+    }
+    setEditingPersonId(null);
+    setEditName('');
+    setEditId('');
+    setEditPhotoBlob(null);
+    setEditPhotoPreview(null);
+    setEditError(null);
+  }, [editPhotoBlob, editPhotoPreview]);
+
   const handleStartEdit = (p: Person) => {
     if (editPhotoBlob && editPhotoPreview && editPhotoPreview.startsWith('blob:')) {
       URL.revokeObjectURL(editPhotoPreview);
@@ -43,18 +55,6 @@ export const PeopleDirectoryModal: React.FC<PeopleDirectoryModalProps> = ({
     setEditId(p.id);
     setEditPhotoBlob(null);
     setEditPhotoPreview(p.photoUrl);
-    setEditError(null);
-  };
-
-  const handleCancelEdit = () => {
-    if (editPhotoBlob && editPhotoPreview && editPhotoPreview.startsWith('blob:')) {
-      URL.revokeObjectURL(editPhotoPreview);
-    }
-    setEditingPersonId(null);
-    setEditName('');
-    setEditId('');
-    setEditPhotoBlob(null);
-    setEditPhotoPreview(null);
     setEditError(null);
   };
 
@@ -117,10 +117,19 @@ export const PeopleDirectoryModal: React.FC<PeopleDirectoryModalProps> = ({
     }
   };
 
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     handleCancelEdit();
     onClose();
-  };
+  }, [handleCancelEdit, onClose]);
+
+  // Close on Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleModalClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleModalClose]);
 
   if (!isOpen) return null;
 
@@ -172,10 +181,10 @@ export const PeopleDirectoryModal: React.FC<PeopleDirectoryModalProps> = ({
       onClick={(e) => {
         if (e.target === e.currentTarget) handleModalClose();
       }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
       dir="rtl"
     >
-      <div className="relative w-full max-w-2xl bg-slate-900 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl flex flex-col max-h-[90dvh] pb-safe sm:pb-8">
+      <div className="relative w-full max-w-2xl bg-slate-900/95 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl flex flex-col max-h-[90dvh] pb-safe sm:pb-8 animate-scale-in">
         {/* Mobile handle indicator */}
         <div className="w-12 h-1 bg-slate-700/60 rounded-full mx-auto mb-3 sm:hidden" />
 

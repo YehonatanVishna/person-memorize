@@ -157,7 +157,14 @@ export function App() {
   const isIdle = status === 'idle' && flashcardsStatus === 'idle';
 
   return (
-    <div className="min-h-dvh flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-600 selection:text-white font-sans antialiased overflow-x-hidden">
+    <div className="relative min-h-dvh flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-600 selection:text-white font-sans antialiased overflow-x-hidden">
+      {/* Ambient background glows */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-40 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl transform-gpu"></div>
+        <div className="absolute top-1/3 -left-32 w-80 h-80 bg-fuchsia-600/8 rounded-full blur-3xl transform-gpu"></div>
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-cyan-500/8 rounded-full blur-3xl transform-gpu"></div>
+      </div>
+
       {/* Top Navbar */}
       <Header
         peopleCount={people.length}
@@ -168,25 +175,27 @@ export function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col justify-start sm:justify-center px-3 sm:px-4 py-3 sm:py-8 max-w-5xl mx-auto w-full">
+      <main className="relative z-10 flex-1 flex flex-col justify-start sm:justify-center px-3 sm:px-4 py-3 sm:py-8 max-w-5xl mx-auto w-full">
         {isInitializing ? (
-          <div className="text-center py-20 text-slate-400">
+          <div className="text-center py-20 text-slate-400 animate-fade-up">
             <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-indigo-400" />
             <p className="text-sm">טוען נתונים מהמאגר המקומי...</p>
           </div>
         ) : isIdle ? (
           /* Mode Selector & Configuration */
-          <ModeSelector
-            peopleCount={people.length}
-            settings={settings}
-            onUpdateSettings={handleUpdateSettings}
-            onStartMode={handleStartMode}
-            onOpenUpload={() => setIsUploadOpen(true)}
-            onLoadDemo={handleLoadDemo}
-          />
+          <div className="animate-fade-up">
+            <ModeSelector
+              peopleCount={people.length}
+              settings={settings}
+              onUpdateSettings={handleUpdateSettings}
+              onStartMode={handleStartMode}
+              onOpenUpload={() => setIsUploadOpen(true)}
+              onLoadDemo={handleLoadDemo}
+            />
+          </div>
         ) : isFlashcardsActive && flashcardsPerson ? (
           /* Active Flashcards Mode */
-          <div className="w-full">
+          <div className="w-full animate-fade-up">
             <GameHeader
               mode="flashcards"
               currentIndex={flashcardsIndex}
@@ -207,7 +216,7 @@ export function App() {
           </div>
         ) : isQuizActive && currentPerson ? (
           /* Active Quiz Mode */
-          <div className="w-full">
+          <div className="w-full animate-fade-up">
             <GameHeader
               mode={mode}
               currentMode={currentMode}
@@ -260,26 +269,30 @@ export function App() {
           </div>
         ) : flashcardsStatus === 'completed' && flashcardsSummary ? (
           /* Flashcards Session Completed */
-          <GameSummaryModal
-            summary={flashcardsSummary}
-            onPlayAgain={() => startFlashcards(people, settings)}
-            onRetryMistakes={retryFlashcardsMistakes}
-            onGoHome={handleResetAll}
-          />
+          <div className="animate-scale-in">
+            <GameSummaryModal
+              summary={flashcardsSummary}
+              onPlayAgain={() => startFlashcards(people, settings)}
+              onRetryMistakes={retryFlashcardsMistakes}
+              onGoHome={handleResetAll}
+            />
+          </div>
         ) : status === 'completed' && summary ? (
           /* Quiz Session Completed & Mistake Review */
-          <GameSummaryModal
-            summary={summary}
-            onPlayAgain={() => startGame(mode, people, settings)}
-            onRetryMistakes={retryMistakes}
-            onGoHome={handleResetAll}
-          />
+          <div className="animate-scale-in">
+            <GameSummaryModal
+              summary={summary}
+              onPlayAgain={() => startGame(mode, people, settings)}
+              onRetryMistakes={retryMistakes}
+              onGoHome={handleResetAll}
+            />
+          </div>
         ) : null}
       </main>
 
       {/* Footer Info - hidden during active game to preserve vertical screen space on mobile */}
       {!isGameActive && (
-        <footer className="w-full border-t border-slate-900 py-4 sm:py-6 px-4 pb-safe text-center text-xs text-slate-500">
+        <footer className="relative z-10 w-full border-t border-slate-900/80 bg-slate-950/60 backdrop-blur-sm py-4 sm:py-6 px-4 pb-safe text-center text-xs text-slate-500">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />

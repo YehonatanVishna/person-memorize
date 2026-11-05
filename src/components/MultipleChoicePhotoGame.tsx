@@ -72,7 +72,7 @@ export const MultipleChoicePhotoGame: React.FC<MultipleChoicePhotoGameProps> = (
               if (isCorrectTarget) {
                 cardBorder = 'border-emerald-500 ring-2 ring-emerald-500/50 shadow-emerald-500/20 shadow-lg';
               } else if (isSelected && !lastEvaluation?.isCorrect) {
-                cardBorder = 'border-rose-500 ring-2 ring-rose-500/50 opacity-80';
+                cardBorder = 'border-rose-500 ring-2 ring-rose-500/50 opacity-80 animate-shake';
               } else {
                 cardBorder = 'border-slate-900 opacity-40';
               }

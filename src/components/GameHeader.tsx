@@ -74,13 +74,13 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
         {/* Stats: Score & Streak */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {streak > 1 && (
-            <div className="flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold animate-pulse">
+            <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold animate-pop shadow-sm">
               <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
               <span>{streak}<span className="hidden sm:inline"> ברצף</span></span>
             </div>
           )}
 
-          <div className="flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold">
+          <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold shadow-sm">
             <Trophy className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
             <span>{score}<span className="hidden sm:inline"> נקודות</span></span>
           </div>
@@ -88,13 +88,13 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
       </div>
 
       {/* Progress Bar & Counter */}
-      <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5 font-medium">
+      <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5 font-medium px-0.5">
         <span>שאלה {currentIndex + 1} מתוך {totalQuestions}</span>
-        <span>{progressPercent}%</span>
+        <span className="font-mono text-indigo-300">{progressPercent}%</span>
       </div>
-      <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+      <div className="w-full h-2.5 rounded-full bg-slate-900 border border-slate-800/80 overflow-hidden p-0.5 shadow-inner">
         <div
-          className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-300 ease-out"
+          className="h-full bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-400 rounded-full transition-all duration-300 ease-out shadow-[0_0_12px_rgba(99,102,241,0.5)]"
           style={{ width: `${progressPercent}%` }}
         />
       </div>

@@ -97,15 +97,15 @@ export const MultipleChoiceTextGame: React.FC<MultipleChoiceTextGameProps> = ({
             const isSelected = lastEvaluation?.userAnswer === opt.id || lastEvaluation?.userAnswer === opt.name;
             const isCorrectTarget = opt.id === person.id;
 
-            let buttonStyle = 'bg-slate-950 border-slate-800 hover:border-slate-700 active:scale-[0.98] text-slate-200';
+            let buttonStyle = 'bg-slate-950/80 border-slate-800 hover:border-slate-700 active:scale-[0.98] text-slate-200 hover:bg-slate-900/60 shadow-sm';
 
             if (status === 'feedback') {
               if (isCorrectTarget) {
-                buttonStyle = 'bg-emerald-950/40 border-emerald-500 text-emerald-300 font-bold shadow-lg shadow-emerald-500/10';
+                buttonStyle = 'bg-emerald-950/40 border-emerald-500 text-emerald-300 font-bold shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/50';
               } else if (isSelected && !lastEvaluation?.isCorrect) {
-                buttonStyle = 'bg-rose-950/40 border-rose-500 text-rose-300 line-through';
+                buttonStyle = 'bg-rose-950/40 border-rose-500 text-rose-300 line-through ring-1 ring-rose-500/50 animate-shake';
               } else {
-                buttonStyle = 'bg-slate-950/50 border-slate-900 text-slate-500 opacity-60';
+                buttonStyle = 'bg-slate-950/40 border-slate-900 text-slate-600 opacity-40';
               }
             }
 
@@ -117,10 +117,10 @@ export const MultipleChoiceTextGame: React.FC<MultipleChoiceTextGameProps> = ({
                 key={opt.id}
                 disabled={status === 'feedback'}
                 onClick={() => onSubmit(opt.id)}
-                className={`relative min-h-[50px] p-3 sm:p-4 rounded-xl sm:rounded-2xl border text-right transition-all flex items-center justify-between group ${buttonStyle}`}
+                className={`relative min-h-[54px] p-3.5 sm:p-4 rounded-2xl border text-right transition-all flex items-center justify-between group ${buttonStyle}`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-7 h-7 rounded-lg bg-slate-800/80 border border-slate-700/60 text-xs font-mono text-slate-300 flex items-center justify-center shrink-0">
+                  <span className="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700/80 text-xs font-mono font-bold text-slate-300 flex items-center justify-center shrink-0 group-hover:border-indigo-500/50 group-hover:text-indigo-300 shadow-inner transition-colors">
                     {index + 1}
                   </span>
                   <span
