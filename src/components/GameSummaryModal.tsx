@@ -11,6 +11,8 @@ const getModeBadge = (m: MistakeMode) => {
       return 'תמונה ← שם מלא';
     case 'photo-to-first-name':
       return 'תמונה ← שם פרטי';
+    case 'photo-to-name-mc':
+      return 'תמונה ← בחירת שם';
     case 'name-to-photo':
       return 'שם ← תמונה';
     case 'name-to-id':

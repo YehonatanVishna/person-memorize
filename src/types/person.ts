@@ -22,6 +22,7 @@ export interface ManifestItem {
 export type ConcreteGameMode =
   | 'photo-to-name'
   | 'photo-to-first-name'
+  | 'photo-to-name-mc'
   | 'name-to-photo'
   | 'name-to-id'
   | 'photo-to-id'

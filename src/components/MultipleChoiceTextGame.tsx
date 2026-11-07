@@ -7,7 +7,7 @@ import { LifelineBar } from './LifelineBar';
 interface MultipleChoiceTextGameProps {
   person: Person;
   options: Person[];
-  mode: 'name-to-id' | 'photo-to-id' | 'id-to-name';
+  mode: 'name-to-id' | 'photo-to-id' | 'id-to-name' | 'photo-to-name-mc';
   status: RoundStatus;
   lastEvaluation: RoundEvaluation | null;
   lifelines?: { fiftyFifty: number; hint: number };
@@ -145,10 +145,12 @@ export const MultipleChoiceTextGame: React.FC<MultipleChoiceTextGameProps> = ({
 
         {/* Stimulus Prompt */}
         <div className="text-center mb-4 sm:mb-6 flex flex-col items-center">
-          {mode === 'photo-to-id' ? (
+          {mode === 'photo-to-id' || mode === 'photo-to-name-mc' ? (
             <>
               <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider block mb-2">
-                בחר את תעודת הזהות של האדם בתמונה:
+                {mode === 'photo-to-name-mc'
+                  ? 'בחר את שמו של האדם בתמונה:'
+                  : 'בחר את תעודת הזהות של האדם בתמונה:'}
               </span>
               <div className="w-32 h-32 sm:w-44 sm:h-44 max-h-[22dvh] max-w-[22dvh] aspect-square rounded-2xl overflow-hidden border-2 border-slate-700/80 bg-slate-950 shadow-inner mb-1">
                 {person.photoUrl ? (
@@ -225,8 +227,9 @@ export const MultipleChoiceTextGame: React.FC<MultipleChoiceTextGameProps> = ({
               }
             }
 
-            const optionLabel = mode === 'id-to-name' ? opt.name : opt.id;
-            const isMonospace = mode !== 'id-to-name';
+            const isNameChoice = mode === 'id-to-name' || mode === 'photo-to-name-mc';
+            const optionLabel = isNameChoice ? opt.name : opt.id;
+            const isMonospace = !isNameChoice;
 
             return (
               <button

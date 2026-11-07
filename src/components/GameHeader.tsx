@@ -35,6 +35,8 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
         return 'זהה את השם המלא';
       case 'photo-to-first-name':
         return 'זהה את השם הפרטי';
+      case 'photo-to-name-mc':
+        return 'בחר שם מתמונה';
       case 'name-to-photo':
         return 'בחר תמונה לפי שם';
       case 'name-to-id':

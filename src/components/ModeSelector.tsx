@@ -66,6 +66,16 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
       featured: true,
     },
     {
+      id: 'photo-to-name-mc',
+      title: 'תמונה ← בחירת שם',
+      description: 'מוצגת תמונה, ועליך לבחור את שמו של האדם מתוך 4 אפשרויות (קיצורי 1-4).',
+      badge: 'בחירה מרובה',
+      icon: <UserCheck className="w-7 h-7 text-emerald-400" />,
+      color: 'from-emerald-500/20 to-indigo-500/10',
+      accentBg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300',
+      borderHover: 'hover:border-emerald-500/50 hover:shadow-emerald-500/10',
+    },
+    {
       id: 'photo-to-name',
       title: 'תמונה ← כתיבת שם מלא',
       description: 'מוצגת תמונה, ועליך להקליד במדויק את שמו המלא של האדם (כולל תמיכה בשגיאות הקלדה קלות).',

@@ -121,6 +121,11 @@ describe('Game Engine Utilities', () => {
     expect(evaluateAnswer('id-to-name', target, '3', false, options).isCorrect).toBe(true);
     expect(evaluateAnswer('id-to-name', target, 'איתי כהן', false, options).isCorrect).toBe(true);
     expect(evaluateAnswer('id-to-name', target, 'נועה לוי', false, options).isCorrect).toBe(false);
+
+    // photo-to-name-mc
+    expect(evaluateAnswer('photo-to-name-mc', target, '3', false, options).isCorrect).toBe(true);
+    expect(evaluateAnswer('photo-to-name-mc', target, 'איתי כהן', false, options).isCorrect).toBe(true);
+    expect(evaluateAnswer('photo-to-name-mc', target, 'נועה לוי', false, options).isCorrect).toBe(false);
   });
 
   it('evaluates photo-to-id-type with numeric cleaning', () => {
@@ -234,6 +239,7 @@ describe('Game Engine Utilities', () => {
 
       expect(getHintClue('photo-to-first-name', target)).toContain('ד');
       expect(getHintClue('photo-to-name', target)).toContain('ד');
+      expect(getHintClue('photo-to-name-mc', target)).toContain('ד');
       expect(getHintClue('name-to-id', target)).toContain('123');
       expect(getHintClue('photo-to-id-type', target)).toContain('123');
       expect(getHintClue('name-to-photo', target)).toContain('דניאל');

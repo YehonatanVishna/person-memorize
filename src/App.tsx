@@ -251,7 +251,10 @@ export function App() {
               />
             )}
 
-            {(currentMode === 'name-to-id' || currentMode === 'photo-to-id' || currentMode === 'id-to-name') && (
+            {(currentMode === 'name-to-id' ||
+              currentMode === 'photo-to-id' ||
+              currentMode === 'id-to-name' ||
+              currentMode === 'photo-to-name-mc') && (
               <MultipleChoiceTextGame
                 key={`${currentPerson.id}-${currentIndex}`}
                 person={currentPerson}

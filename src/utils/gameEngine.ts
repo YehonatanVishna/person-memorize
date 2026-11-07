@@ -6,6 +6,7 @@ export type RoundStatus = 'idle' | 'pending' | 'feedback' | 'completed';
 export const ALL_CONCRETE_MODES: readonly ConcreteGameMode[] = [
   'photo-to-name',
   'photo-to-first-name',
+  'photo-to-name-mc',
   'name-to-photo',
   'name-to-id',
   'photo-to-id',
@@ -198,7 +199,8 @@ export function getHintClue(mode: ConcreteGameMode, target: Person): string {
       const prefix = cleanDigits.slice(0, 3) || target.id.slice(0, 3);
       return `רמז: תעודת הזהות מתחילה בספרות "${prefix}..."`;
     }
-    case 'id-to-name': {
+    case 'id-to-name':
+    case 'photo-to-name-mc': {
       const firstLetter = target.name.trim()[0] || '';
       return `רמז: שם האדם מתחיל באות "${firstLetter}"`;
     }
@@ -333,8 +335,8 @@ export function evaluateAnswer(
     };
   }
 
-  // Mode 6: ID -> Name (multiple choice buttons)
-  if (mode === 'id-to-name') {
+  // Mode 6: ID -> Name or Photo -> Name (multiple choice buttons)
+  if (mode === 'id-to-name' || mode === 'photo-to-name-mc') {
     const isCorrect = answer === target.id || answer === target.name;
     const chosenPerson = options?.find((p) => p.id === answer || p.name === answer);
     return {
