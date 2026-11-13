@@ -4,8 +4,18 @@ import type { Person } from '../types/person';
 import type { FlashcardFrontSide } from '../hooks/useFlashcardsEngine';
 import { getNumberFromKeyEvent } from '../utils/gameEngine';
 
+export type FlashcardCardType = 'full' | 'name-id' | 'photo-id';
+
+const CARD_TYPE_OPTIONS: { value: FlashcardCardType; label: string }[] = [
+  { value: 'full', label: 'מלא' },
+  { value: 'name-id', label: 'שם ↔ ת"ז' },
+  { value: 'photo-id', label: 'תמונה ↔ ת"ז' },
+];
+
 interface FlashcardsGameProps {
   person: Person;
+  cardType?: FlashcardCardType;
+  onChangeCardType?: (cardType: FlashcardCardType) => void;
   isFlipped: boolean;
   frontSide: FlashcardFrontSide;
   onFlip: () => void;
@@ -15,6 +25,8 @@ interface FlashcardsGameProps {
 
 export const FlashcardsGame: React.FC<FlashcardsGameProps> = ({
   person,
+  cardType = 'full',
+  onChangeCardType,
   isFlipped,
   frontSide,
   onFlip,
@@ -70,6 +82,71 @@ export const FlashcardsGame: React.FC<FlashcardsGameProps> = ({
 
   const isFrontPhoto = frontSide === 'photo';
 
+  type Field = 'photo' | 'name' | 'id';
+  // Single-pair card types: [field shown when frontSide === 'photo', the other field]
+  const pair: [Field, Field] | null =
+    cardType === 'name-id' ? ['name', 'id'] : cardType === 'photo-id' ? ['photo', 'id'] : null;
+  const pairFront: Field | null = pair ? (isFrontPhoto ? pair[0] : pair[1]) : null;
+  const pairBack: Field | null = pair ? (isFrontPhoto ? pair[1] : pair[0]) : null;
+
+  const fieldLabel: Record<Field, string> = { photo: 'תמונה', name: 'שם', id: 'ת"ז' };
+  const toggleLabel =
+    pairFront && pairBack
+      ? `${fieldLabel[pairFront]} מקדימה ← ${fieldLabel[pairBack]} מאחורה`
+      : isFrontPhoto
+      ? 'תמונה מקדימה ← פרטים מאחורה'
+      : 'שם ות"ז מקדימה ← תמונה מאחורה';
+
+  const renderField = (field: Field, side: 'front' | 'back') => {
+    if (field === 'photo') {
+      return (
+        <div
+          className={`w-44 h-44 sm:w-56 sm:h-56 max-h-[30dvh] max-w-[30dvh] aspect-square rounded-2xl overflow-hidden border-2 bg-slate-950 flex items-center justify-center ${
+            side === 'front'
+              ? 'border-slate-700/80 shadow-inner group-hover:scale-[1.02] transition-transform'
+              : 'border-indigo-500/50 shadow-lg shadow-indigo-500/20'
+          }`}
+        >
+          {person.photoUrl ? (
+            <img
+              src={person.photoUrl}
+              alt={side === 'front' ? 'תמונת כרטיסייה' : person.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="text-slate-500 text-sm">אין תמונה זמינה</div>
+          )}
+        </div>
+      );
+    }
+    const isName = field === 'name';
+    return (
+      <div
+        className={`w-full p-5 rounded-2xl border shadow-inner ${
+          side === 'front' ? 'bg-slate-950/90 border-slate-800' : 'bg-indigo-950/60 border-indigo-800/60'
+        }`}
+      >
+        <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400 mb-2">
+          {isName ? (
+            <User className="w-3.5 h-3.5 text-indigo-400" />
+          ) : (
+            <CreditCard className="w-3.5 h-3.5 text-indigo-400" />
+          )}
+          <span>{isName ? 'שם מלא' : 'תעודת זהות'}</span>
+        </div>
+        {isName ? (
+          <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight" dir="auto">
+            {person.name}
+          </div>
+        ) : (
+          <div className="text-2xl sm:text-3xl font-mono font-bold text-indigo-300 tracking-widest" dir="ltr">
+            {person.id}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div
       className="max-w-md mx-auto w-full"
@@ -102,6 +179,32 @@ export const FlashcardsGame: React.FC<FlashcardsGameProps> = ({
         }}
         className="sr-only pointer-events-none"
       />
+      {/* Card Type Selector */}
+      {onChangeCardType && (
+        <div className="flex items-center justify-between mb-2 px-1 gap-2">
+          <span className="text-xs text-slate-400 font-medium shrink-0">סוג כרטיסייה:</span>
+          <div className="flex items-center bg-slate-950/90 p-1 rounded-xl border border-slate-800/80 gap-1">
+            {CARD_TYPE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={(e) => {
+                  e.currentTarget.blur();
+                  onChangeCardType(opt.value);
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all active:scale-[0.96] ${
+                  cardType === opt.value
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Direction Toggle Bar */}
       <div className="flex items-center justify-between mb-3 px-1">
         <span className="text-xs text-slate-400 font-medium">כיוון כרטיסייה:</span>
@@ -114,9 +217,7 @@ export const FlashcardsGame: React.FC<FlashcardsGameProps> = ({
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-850 border border-slate-800 text-xs font-semibold text-indigo-300 transition-all active:scale-[0.97] shadow-sm"
         >
           <ArrowLeftRight className="w-3.5 h-3.5 text-indigo-400" />
-          <span>
-            {frontSide === 'photo' ? 'תמונה מקדימה ← פרטים מאחורה' : 'שם ות"ז מקדימה ← תמונה מאחורה'}
-          </span>
+          <span>{toggleLabel}</span>
         </button>
       </div>
 
@@ -154,7 +255,9 @@ export const FlashcardsGame: React.FC<FlashcardsGameProps> = ({
 
             {/* Front Content */}
             <div className="my-auto w-full flex flex-col items-center text-center relative z-10 py-3">
-              {isFrontPhoto ? (
+              {pairFront ? (
+                renderField(pairFront, 'front')
+              ) : isFrontPhoto ? (
                 <div className="w-44 h-44 sm:w-56 sm:h-56 max-h-[30dvh] max-w-[30dvh] aspect-square rounded-2xl overflow-hidden border-2 border-slate-700/80 bg-slate-950 shadow-inner flex items-center justify-center group-hover:scale-[1.02] transition-transform">
                   {person.photoUrl ? (
                     <img
@@ -222,6 +325,11 @@ export const FlashcardsGame: React.FC<FlashcardsGameProps> = ({
             </div>
 
             {/* Back Content (Reveals all details) */}
+            {pairBack ? (
+              <div className="my-auto w-full flex flex-col items-center text-center relative z-10 py-2">
+                {renderField(pairBack, 'back')}
+              </div>
+            ) : (
             <div className="my-auto w-full flex flex-col items-center text-center relative z-10 py-2">
               {/* Photo Thumbnail */}
               <div className="w-28 h-28 sm:w-32 sm:h-32 aspect-square rounded-2xl overflow-hidden border-2 border-indigo-500/50 bg-slate-950 shadow-lg shadow-indigo-500/20 mb-3 flex items-center justify-center">
@@ -247,6 +355,7 @@ export const FlashcardsGame: React.FC<FlashcardsGameProps> = ({
                 </div>
               </div>
             </div>
+            )}
 
             {/* Bottom Grading Hint */}
             <div className="w-full pt-2 flex items-center justify-center gap-2 text-xs text-slate-400 relative z-10 border-t border-slate-800/60">

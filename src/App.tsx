@@ -5,7 +5,7 @@ import { GameHeader } from './components/GameHeader';
 import { TypeAnswerGame } from './components/TypeAnswerGame';
 import { MultipleChoiceTextGame } from './components/MultipleChoiceTextGame';
 import { MultipleChoicePhotoGame } from './components/MultipleChoicePhotoGame';
-import { FlashcardsGame } from './components/FlashcardsGame';
+import { FlashcardsGame, type FlashcardCardType } from './components/FlashcardsGame';
 import { GameSummaryModal } from './components/GameSummaryModal';
 import { UploadModal } from './components/UploadModal';
 import { PeopleDirectoryModal } from './components/PeopleDirectoryModal';
@@ -31,6 +31,7 @@ export function App() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isDirectoryOpen, setIsDirectoryOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [flashcardType, setFlashcardType] = useState<FlashcardCardType>('full');
   const [settings, setSettings] = useState<GameSettings>({
     questionCount: -1,
     allowTypo: true,
@@ -214,6 +215,8 @@ export function App() {
             <FlashcardsGame
               key={`${flashcardsPerson.id}-${flashcardsIndex}`}
               person={flashcardsPerson}
+              cardType={flashcardType}
+              onChangeCardType={setFlashcardType}
               isFlipped={flashcardsIsFlipped}
               frontSide={flashcardsFrontSide}
               onFlip={flipCard}
